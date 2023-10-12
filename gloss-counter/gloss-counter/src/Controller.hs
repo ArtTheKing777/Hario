@@ -9,13 +9,8 @@ import System.Random
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs gstate = return $ GameState (ShowAPicture ) 0
-
-getHario :: BitmapData
-getHario = loadBMP(readFile)
-
-step1 :: Float -> GameState -> IO GameState
-step1| elapsedTime gstate + secs > nO_SECS_BETWEEN_CYCLES
+step secs gstate
+  | elapsedTime gstate + secs > nO_SECS_BETWEEN_CYCLES
   = -- We show a new random number
     do randomNumber <- randomIO
        let newNumber = abs randomNumber `mod` 10
