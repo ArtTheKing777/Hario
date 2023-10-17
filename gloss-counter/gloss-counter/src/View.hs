@@ -11,8 +11,5 @@ view _  = getHario
 getHario :: IO Picture
 getHario = loadBMP "media/Super_Hario_Bros_Logo.bmp"
 
-viewPure :: GameState -> Picture
-viewPure gstate = case infoToShow gstate of
-  ShowNothing   -> blank
-  ShowANumber n -> color green (text (show n))
-  ShowAChar   c -> color green (text [c])
+
+
