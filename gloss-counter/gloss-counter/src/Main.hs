@@ -9,7 +9,7 @@ import Graphics.Gloss.Interface.IO.Game
 main :: IO ()
 main = playIO (InWindow "window" (1600, 900) (0, 0)) -- Or FullScreen
               black            -- Background color
-              120              -- Frames per second
+              60              -- Frames per second
               initialState     -- Initial state
               view             -- View function
               input            -- Event function

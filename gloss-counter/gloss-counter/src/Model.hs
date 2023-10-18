@@ -4,7 +4,8 @@
 --   which represent the state of the game
 module Model where
 
-data GameState = LevelSelectState {keys::Int}
+data GameState = LevelSelectState {keys::Int,
+                                    elapsedTime::Float}
               | StartScreenState  {}
               | LevelPlayingState {}
 
