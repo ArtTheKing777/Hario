@@ -9,7 +9,7 @@ import System.Random
 
 -- | Handle one iteration of the game | eT = elaspsedTme
 step :: Float -> GameState -> IO GameState
-step eT gstate = return $ gstate { elapsedTime = elapsedTime gstate + eT }
+step eT gstate = return gstate
 
 
 -- | Handle user input

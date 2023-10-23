@@ -1,60 +1,49 @@
 -- | This module defines how to turn
 --   the game state into a picture
 module View where
-
-import Graphics.Gloss ( loadBMP, Picture (Bitmap, BitmapSection) , pictures, scale, translate, BitmapData (bitmapSize), bitmapDataOfBMP, bitmapSection, Rectangle (Rectangle) )
+import Graphics.Gloss.Data.Picture (Picture (Bitmap, BitmapSection, Blank) , pictures, scale, translate, bitmapSection)
 import Model ( GameState (LevelSelectState) )
 import Graphics.Gloss.Interface.IO.Animate (animateIO)
+import Graphics.Gloss.Data.Bitmap (BitmapData(bitmapSize), Rectangle (Rectangle), loadBMP)
 
 view :: GameState -> IO Picture
-view g@(LevelSelectState k eT)  = do
+view g  = do
                 hario <- getHario
-                hario <- pure (scale 0.5 0.5 hario)
+                hario <- pure (scale 0.5 0.5 (Bitmap hario))
                 hario <- pure (translate (-400) 0 hario)
 
                 hario2 <- getHario
-                hario2 <- pure (scale 0.5 0.5 hario2)
+                hario2 <- pure (scale 0.5 0.5 (Bitmap hario2))
                 hario2 <- pure (translate 400 0 hario2)
+                
+                harioSheetBmp <- getHarioAnimationSheet
 
-                harioAnimationsheet <- getHarioAnimationSheet
+                let harioSheet = makeListofSheet (Rectangle (0, 0) (17, -35)) harioSheetBmp (fst (bitmapSize harioSheetBmp))
 
-                let harioAnimationSprites = (makeListofSheet (Rectangle (0, 0) (17, -35)) harioAnimationsheet)
+                let hario1 = harioSheet !! 2
 
-                return (pictures ([hario, hario2]++harioAnimationSprites))
+                return (pictures [hario, hario2, hario1])
 
-getHario :: IO Picture
-getHario = loadBMP "media/Super_Hario_Bros_Logo.bmp"
+getHario :: IO BitmapData
+getHario = loadBitmapData "media/Super_Hario_Bros_Logo.bmp"
 
-getAnimationSheet1 :: IO Picture
-getAnimationSheet1 = loadBMP "media/hario_and_items.bmp"
+loadBitmapData :: FilePath -> IO BitmapData
+loadBitmapData s = do
+                        p@(Bitmap bmpdata) <- loadBMP s
+                        return bmpdata
 
-toBitmapData :: Picture -> BitmapData
-toBitmapData p@(Bitmap bitmap) = bitmap
+getHarioAnimationSheet :: IO BitmapData
+getHarioAnimationSheet = loadBitmapData "media/hario.bmp"
 
-getHarioAnimationSheet :: IO Picture
-getHarioAnimationSheet = do
-                            harioSheet <- getAnimationSheet1
-                            let harioSheetbmp = (toBitmapData harioSheet)
-                            return (bitmapSection (Rectangle (0, 0) (270, -35)) harioSheetbmp )
+getFireHarioAnimationSheet :: IO BitmapData
+getFireHarioAnimationSheet = loadBitmapData "media/firehario.bmp"
 
-getFireHarioAnimationSheet :: IO Picture
-getFireHarioAnimationSheet = do
-                                fireHarioSheet <- getAnimationSheet1
-                                let fireHarioSheetbmp = (toBitmapData fireHarioSheet)
-                                return (bitmapSection (Rectangle (0, -35) (360, -71)) fireHarioSheetbmp)
+getSmallHarioAnimationSheet :: IO BitmapData
+getSmallHarioAnimationSheet = loadBitmapData "media/smallhario.bmp"
 
-getSmallHarioAnimationSheet :: IO Picture
-getSmallHarioAnimationSheet = do
-                                smallHarioSheet <- getAnimationSheet1
-                                let smallHarioSheetbmp = (toBitmapData smallHarioSheet)
-                                return (bitmapSection (Rectangle (0, -71) (251, -89)) smallHarioSheetbmp)
-
-makeListofSheet :: Rectangle -> Picture -> [Picture]
-makeListofSheet r@(Rectangle (x,y) (w,h)) bmp   | fst (bitmapSize bitmp) <= w  = [bmp]
-                                                | otherwise = BitmapSection r bitmp : makeListofSheet r (BitmapSection (Rectangle (x+w, y) (wd, h)) bitmp)
-                                                where
-                                                    wd = fst (bitmapSize (toBitmapData bmp)) - w
-                                                    bitmp = toBitmapData bmp
+makeListofSheet :: Rectangle -> BitmapData -> Int -> [Picture]
+makeListofSheet r@(Rectangle (x,y) (w,h)) bmp l | l >= w  = BitmapSection r bmp : makeListofSheet (Rectangle (x+w, y) (w,h)) bmp (l-w)
+                                                | otherwise = [Blank]
 
 
 -- | 270x-35px for normal hario
