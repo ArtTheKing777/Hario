@@ -18,13 +18,8 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp)  = Text(show(first mp) +","+ show(Snd mp))
 view g@(LevelSelectState k t)  = testShow t
-view g@(LevelPlayingState k t) = testShow t
+view g@(LevelPlayingState k t h) = testShow t
 
 testShow :: Float -> IO Picture
 testShow t = do
-
-                harioSheet <- getHarioFrames
-
-                let harioSheet1 = [harioSheet !! 4, harioSheet !! 5, harioSheet !! 6, harioSheet !! 5]
-
-                return ((scale 3 3 (animationLoop t (0.5/harioSpeed) harioSheet1)))
+                scale 3 3 . animationLoop t (0.5/harioSpeed) <$> harioWalk
