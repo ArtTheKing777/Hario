@@ -1,12 +1,19 @@
 -- | This module defines how to turn
 --   the game state into a picture
 module View where
-import Graphics.Gloss.Data.Picture (Picture (Bitmap, BitmapSection, Blank) , pictures, scale, translate, bitmapSection)
+import Graphics.Gloss.Data.Picture (Picture (Bitmap, BitmapSection, Blank) , pictures, scale, translate, bitmapSection, bitmap)
 import Model
 import Graphics.Gloss.Interface.IO.Animate (animateIO)
 import Graphics.Gloss.Data.Bitmap (BitmapData(bitmapSize), Rectangle (Rectangle), loadBMP)
 import Data.Fixed
 import GHC.Float (int2Float)
+import Graphics.Gloss
+
+fps :: Int
+fps = 60
+
+harioSpeed :: Float
+harioSpeed = 10
 
 view :: GameState -> IO Picture
 view g@(StartScreenState k t)  = testShow t
@@ -15,21 +22,15 @@ view g@(LevelPlayingState k t) = testShow t
 
 testShow :: Float -> IO Picture
 testShow t = do
-                hario <- getHario
-                hario <- pure (scale 0.5 0.5 (Bitmap hario))
-                hario <- pure (translate (-400) 0 hario)
 
-                hario2 <- getHario
-                hario2 <- pure (scale 0.5 0.5 (Bitmap hario2))
-                hario2 <- pure (translate 400 0 hario2)
-                
                 harioSheetBmp <- getHarioAnimationSheet
 
                 let harioSheet = makeListofSheet (Rectangle (0, -1) (17, -35)) harioSheetBmp (fst (bitmapSize harioSheetBmp))
 
-                let hario1 = harioSheet !! 2
+                let harioSheet1 = [harioSheet !! 4, harioSheet !! 5, harioSheet !! 6, harioSheet !! 5]
 
-                return (animationLoop t (0.25) harioSheet)
+                return ((scale 3 3 (animationLoop t (0.5/harioSpeed) harioSheet1)))
+
 
 getHario :: IO BitmapData
 getHario = loadBitmapData "media/Super_Hario_Bros_Logo.bmp"
@@ -54,8 +55,10 @@ makeListofSheet r@(Rectangle (x,y) (w,h)) bmp l | l >= w  = BitmapSection r bmp 
 
 -- time, time per frame, pictures
 animationLoop :: Float -> Float -> [Picture] -> Picture
-animationLoop eT tF p = p !! round(mod' eT ((tF * int2Float(length p))-1))
+animationLoop eT tF p = p !! floor (mod' (eT/tF) (int2Float (length p)))
 
+getHarioFrames :: IO [Picture]
+getHarioFrames = undefined
 
 -- | 270x-35px for normal hario
 -- | 360x-71px from (0, -35) for fire hario
