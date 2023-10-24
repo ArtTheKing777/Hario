@@ -11,7 +11,7 @@ import System.Random
 step :: Float -> GameState -> IO GameState
 step eT (LevelSelectState k t ) = return (LevelSelectState k (t + eT))
 step eT (StartScreenState k t ) = return (StartScreenState k (t + eT))
-step eT (LevelPlayingState k t ) = return (LevelPlayingState k (t + eT))
+step eT (LevelPlayingState k t h) = return (LevelPlayingState k (t + eT) h)
 
 
 -- | Handle user input
