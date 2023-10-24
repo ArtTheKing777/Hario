@@ -2,12 +2,46 @@
 --   the game state into a picture
 module View where
 import Graphics.Gloss.Data.Picture (Picture (Bitmap, BitmapSection, Blank) , pictures, scale, translate, bitmapSection)
-import Model ( GameState (LevelSelectState) )
+import Model
 import Graphics.Gloss.Interface.IO.Animate (animateIO)
 import Graphics.Gloss.Data.Bitmap (BitmapData(bitmapSize), Rectangle (Rectangle), loadBMP)
+import Data.Fixed
+import GHC.Float (int2Float)
 
 view :: GameState -> IO Picture
-view g  = do
+view g@(StartScreenState k t) = do
+                hario <- getHario
+                hario <- pure (scale 0.5 0.5 (Bitmap hario))
+                hario <- pure (translate (-400) 0 hario)
+
+                hario2 <- getHario
+                hario2 <- pure (scale 0.5 0.5 (Bitmap hario2))
+                hario2 <- pure (translate 400 0 hario2)
+                
+                harioSheetBmp <- getHarioAnimationSheet
+
+                let harioSheet = makeListofSheet (Rectangle (0, 0) (17, -35)) harioSheetBmp (fst (bitmapSize harioSheetBmp))
+
+                let hario1 = harioSheet !! 2
+
+                return (animationLoop t (0.25) harioSheet)
+view g@(LevelSelectState k t)  = do
+                hario <- getHario
+                hario <- pure (scale 0.5 0.5 (Bitmap hario))
+                hario <- pure (translate (-400) 0 hario)
+
+                hario2 <- getHario
+                hario2 <- pure (scale 0.5 0.5 (Bitmap hario2))
+                hario2 <- pure (translate 400 0 hario2)
+                
+                harioSheetBmp <- getHarioAnimationSheet
+
+                let harioSheet = makeListofSheet (Rectangle (0, 0) (17, -35)) harioSheetBmp (fst (bitmapSize harioSheetBmp))
+
+                let hario1 = harioSheet !! 2
+
+                return (pictures [hario, hario2, hario1])
+view g@(LevelPlayingState k t) = do
                 hario <- getHario
                 hario <- pure (scale 0.5 0.5 (Bitmap hario))
                 hario <- pure (translate (-400) 0 hario)
@@ -42,8 +76,12 @@ getSmallHarioAnimationSheet :: IO BitmapData
 getSmallHarioAnimationSheet = loadBitmapData "media/smallhario.bmp"
 
 makeListofSheet :: Rectangle -> BitmapData -> Int -> [Picture]
-makeListofSheet r@(Rectangle (x,y) (w,h)) bmp l | l >= w  = BitmapSection r bmp : makeListofSheet (Rectangle (x+w, y) (w,h)) bmp (l-w)
+makeListofSheet r@(Rectangle (x,y) (w,h)) bmp l | l >= w  = BitmapSection r bmp : makeListofSheet (Rectangle (x+w+1, y) (w,h)) bmp (l-w)
                                                 | otherwise = [Blank]
+
+-- time, time per frame, pictures
+animationLoop :: Float -> Float -> [Picture] -> Picture
+animationLoop eT tF p = p !! round(mod' eT ((tF * int2Float(length p))-1))
 
 
 -- | 270x-35px for normal hario
