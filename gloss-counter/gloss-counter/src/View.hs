@@ -16,7 +16,7 @@ harioSpeed :: Float
 harioSpeed = 10
 
 view :: GameState -> IO Picture
-view g@(StartScreenState k t mp)  = Text(show(first mp) +","+ show(Snd mp))
+view g@(StartScreenState k t mp)  = return(scale 0.1 0.1 (color blue (text (show(fst mp) ++ " " ++ show(snd mp)))))
 view g@(LevelSelectState k t)  = testShow t
 view g@(LevelPlayingState k t h) = testShow t
 
