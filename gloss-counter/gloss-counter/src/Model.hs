@@ -12,7 +12,7 @@ data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float}
                                     hario::Hario}
 
 initialState :: GameState
-initialState = StartScreenState S.empty 0 (0,0)
+initialState = LevelSelectState S.empty 0
 
 data PlayerState = Idle | Walk | Jump | Fall | Die | Victory
 data Looking = Left | Right

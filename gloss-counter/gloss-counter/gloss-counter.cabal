@@ -12,7 +12,7 @@ executable gloss-counter
   build-depends:       base >= 4 && < 5,
                        gloss,
                        random,
-		       containers
+		                   containers
   hs-source-dirs:      src
   other-modules:       Controller
                      , Model
