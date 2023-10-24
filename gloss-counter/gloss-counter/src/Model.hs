@@ -5,9 +5,9 @@
 module Model where
 
 data GameState = LevelSelectState {keys::Int, elapsedTime::Float}
-              | StartScreenState  {keys::Int, elapsedTime::Float}
+              | StartScreenState  {keys::Int, elapsedTime::Float,mousePos::(Float,Float)}
               | LevelPlayingState {keys::Int, elapsedTime::Float}
 
 initialState :: GameState
-initialState = StartScreenState 0 0
+initialState = StartScreenState 0 0 (0,0)
 
