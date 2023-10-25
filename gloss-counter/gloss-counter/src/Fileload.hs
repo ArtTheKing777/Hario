@@ -19,3 +19,6 @@ getFireHarioAnimationSheet = loadBitmapData "media/firehario.bmp"
 
 getSmallHarioAnimationSheet :: IO BitmapData
 getSmallHarioAnimationSheet = loadBitmapData "media/smallhario.bmp"
+
+getTextBox :: IO BitmapData
+getTextBox = loadBitmapData "media/textBox.bmp"

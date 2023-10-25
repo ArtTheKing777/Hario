@@ -5,6 +5,7 @@ import Graphics.Gloss.Data.Picture (Picture (BitmapSection))
 import Data.Fixed (mod')
 import GHC.Float (int2Float)
 import Model (PlayerPower (Small, Big, Fire))
+import Control.Monad
 
 -- rectangle for first sprite, bitmapdata of image
 makeListofSheet :: Rectangle -> BitmapData -> Int -> [Picture]
@@ -94,8 +95,42 @@ fireShootMoveSheet = do
                     harioFrames <- getFireHarioFrames
                     return [harioFrames !! 1, harioFrames !! 15, harioFrames !! 18, harioFrames !! 19, harioFrames !! 16, harioFrames !! 17, harioFrames !! 18]
 
+-- actual animations to be called.
+-- hario power, eT, speed, to animations
+harioIdleAnimation :: PlayerPower -> Float -> Float -> IO Picture
+harioIdleAnimation p eT s = do
+                                harioSheet <- idleSheet p
+                                if p == Small
+                                    then return (animationLoop eT (1/s) harioSheet)
+                                    else return (animationLoop eT (0.5/s) harioSheet)
 
+harioJumpAnimation :: PlayerPower -> Float -> Float -> IO Picture
+harioJumpAnimation p eT s = do
+                                harioSheet <- jumpSheet p
+                                if p == Small
+                                    then return (animationLoop eT (1/s) harioSheet)
+                                    else return (animationLoop eT (0.5/s) harioSheet)
 
+harioSquatAnimation :: PlayerPower -> Float -> Float -> IO Picture
+harioSquatAnimation p eT s = do
+                                harioSheet <- squatSheet p
+                                if p == Small
+                                    then return (animationLoop eT (1/s) harioSheet)
+                                    else return (animationLoop eT (0.5/s) harioSheet)
+
+harioWalkAnimation :: PlayerPower -> Float -> Float -> IO Picture
+harioWalkAnimation p eT s = do
+                                harioSheet <- walkSheet p
+                                if p == Small
+                                    then return (animationLoop eT (1/s) harioSheet)
+                                    else return (animationLoop eT (0.5/s) harioSheet)
+
+harioSwimAnimation :: PlayerPower -> Float -> Float -> IO Picture
+harioSwimAnimation p eT s = do
+                                harioSheet <- swimSheet p
+                                if p == Small
+                                    then return (animationLoop eT (1/s) harioSheet)
+                                    else return (animationLoop eT (0.5/s) harioSheet)
 
 -- | 270x-35px for normal hario
 -- | 360x-71px from (0, -35) for fire hario
