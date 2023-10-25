@@ -18,13 +18,18 @@ harioSpeed :: Float
 harioSpeed = 10
 
 view :: GameState -> IO Picture
-view g@(StartScreenState k t mp)  = return (color blue (if (S.member (MouseButton LeftButton) k) then Text("pressed") else Text("no")))
+view g@(StartScreenState k t mp)  = return 
 view g@(LevelSelectState k t)  = testShow t
 view g@(LevelPlayingState k t h) = testShow t
 
 testShow :: Float -> IO Picture
 testShow t = do
                 scale 3 3 . animationLoop t (0.5/harioSpeed) <$> fireShootSheet
+                animation <- harioIdleAnimation Small t harioSpeed
+                return (scale 3 3 animation)
 
 testMP :: (Float,Float) -> Picture
 testMP mp = scale 0.1 0.1 (color blue (text (show(fst mp) ++ " " ++ show(snd mp))))
+
+testButtonInput :: S.Set Key -> Picture
+testButtonInput k = (color blue (if (S.member (MouseButton LeftButton) k) then Text("pressed") else Text("no")))
