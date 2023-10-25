@@ -17,5 +17,6 @@ initialState = LevelSelectState S.empty 0
 data PlayerState = Idle | Walk | Jump | Fall | Die | Victory
 data Looking = Left | Right
 data PlayerPower = Small | Big | Fire
+    deriving (Eq)
 data Hario = Hario { hpos::Point, state::PlayerState,
                      power::PlayerPower, direction::Looking}

@@ -22,4 +22,5 @@ view g@(LevelPlayingState k t h) = testShow t
 
 testShow :: Float -> IO Picture
 testShow t = do
-                scale 3 3 . animationLoop t (0.5/harioSpeed) <$> fireShootSheet
+                animation <- harioIdleAnimation Small t harioSpeed
+                return (scale 3 3 animation)
