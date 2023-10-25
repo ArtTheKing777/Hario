@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use newtype instead of data" #-}
 -- | This module contains the data types
 --   which represent the state of the game
 module Model where
@@ -12,7 +10,7 @@ data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float}
                                     hario::Hario}
 
 initialState :: GameState
-initialState = LevelSelectState S.empty 0
+initialState = StartScreenState S.empty 0 (0,0)
 
 data PlayerState = Idle | Walk | Jump | Fall | Die | Victory
 data Looking = Left | Right
