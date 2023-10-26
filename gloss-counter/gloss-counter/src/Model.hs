@@ -23,9 +23,10 @@ data PlayerPower = Small | Big | Fire
     deriving (Eq)
 data Hario = Hario { hpos::Point, state::PlayerState,
                      power::PlayerPower, direction::Looking, speed::Float}
-data EnemyType = Hoomba | Hoopa | HoolitBill | Hirrana | Howser | HopaShell | HireBall | Hacid
+data EnemyType = Hoomba | HoopaTroopa | HoopaParaTroopa | Hirrana | RedHirrana | HeepHeep | Hloober | Hakitu | Hiny | HuzzyBeetle | HoolitBill 
+                        | HammerBrother | Worm | Howser | HoopaShell | HireBall | Hacid | Hammer  | HakituProjectile
 data EnemyState = Alive | Dead
-data Enemy = Enemy Point EnemyType EnemyState Looking
+data Enemy = Enemy { point::Point, etype::EnemyType, estate::EnemyState, edirection::Looking }
 data Field = W -- Wall
             |A -- Air
             |H -- player start position (Hario)

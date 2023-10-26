@@ -20,14 +20,21 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp)  = 
 view g@(LevelSelectState k t)  = return blank
-view g@(LevelPlayingState k t l) = testShow t (player l)
+view g@(LevelPlayingState k t l) = testShow t l
 
+<<<<<<< HEAD
 loadUI:: GameState -> IO Picture
 loadUI = do
 
 testShow :: Float -> Hario -> IO Picture
 testShow t p = do
                 animation <- harioIdleAnimation (power p) t harioSpeed
+=======
+testShow :: Float -> Level -> IO Picture
+testShow t l = do
+                frames <- getEnemyFrames Worm
+                let animation = animationLoop t 0.5 frames
+>>>>>>> 59ad0448e3f43f013863f79c0253d8337775a23e
                 return (scale 3 3 animation)
 
 testMP :: (Float,Float) -> Picture
