@@ -1,11 +1,12 @@
 module Animations where
 import Fileload
 import Graphics.Gloss.Data.Bitmap (Rectangle (Rectangle), BitmapData (bitmapSize))
-import Graphics.Gloss.Data.Picture (Picture (BitmapSection))
+import Graphics.Gloss.Data.Picture (Picture (BitmapSection), scale)
 import Data.Fixed (mod')
 import GHC.Float (int2Float)
-import Model (PlayerPower (Small, Big, Fire))
+import Model
 import Control.Monad
+import Prelude hiding (Left)
 
 -- rectangle for first sprite, bitmapdata of image
 makeListofSheet :: Rectangle -> BitmapData -> Int -> [Picture]
@@ -84,6 +85,18 @@ swimSheet Big = do
 swimSheet Fire = do
                     harioFrames <- getHarioFrames
                     return [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
+
+fallSheet :: PlayerPower -> IO [Picture]
+fallSheet Small = do
+                    harioFrames <- getSmallHarioFrames
+                    return [harioFrames !! 2]
+fallSheet Big = do
+                    harioFrames <- getHarioFrames
+                    return [harioFrames !! 2]
+fallSheet Fire = do
+                    harioFrames <- getFireHarioFrames
+                    return [harioFrames !! 2]
+
 -- fire hario only
 fireShootSheet :: IO [Picture]
 fireShootSheet = do 
@@ -132,6 +145,40 @@ harioSwimAnimation p eT s = do
                                     then return (animationLoop eT (1/s) harioSheet)
                                     else return (animationLoop eT (0.5/s) harioSheet)
 
+harioFallAnimation :: PlayerPower -> Float -> Float -> IO Picture
+harioFallAnimation p eT s = do
+                                harioSheet <- fallSheet p
+                                if p == Small
+                                    then return (animationLoop eT (1/s) harioSheet)
+                                    else return (animationLoop eT (0.5/s) harioSheet)
+
+
+animateHario :: Hario -> Float -> IO Picture
+animateHario p t = case state p of
+                        Idle -> do
+                                    animation <- harioIdleAnimation (power p) t (speed p)
+                                    if direction p == Left then return (scale (-1) 1 animation)
+                                    else return animation
+                        Walk -> do
+                                    animation <- harioWalkAnimation (power p) t (speed p)
+                                    if direction p == Left then return (scale (-1) 1 animation)
+                                    else return animation
+                        Jump -> do
+                                    animation <- harioJumpAnimation (power p) t (speed p)
+                                    if direction p == Left then return (scale (-1) 1 animation)
+                                    else return animation
+                        Fall -> do
+                                    animation <- harioFallAnimation (power p) t (speed p)
+                                    if direction p == Left then return (scale (-1) 1 animation)
+                                    else return animation
+                        Die -> do
+                                    animation <- harioSquatAnimation (power p) t (speed p)
+                                    if direction p == Left then return (scale (-1) 1 animation)
+                                    else return animation
+                        Swim -> do 
+                                    animation <- harioSwimAnimation (power p) t (speed p)
+                                    if direction p == Left then return (scale (-1) 1 animation)
+                                    else return animation
 -- | 270x-35px for normal hario
 -- | 360x-71px from (0, -35) for fire hario
 -- | 251x-89px from (0, -71) for small hario
