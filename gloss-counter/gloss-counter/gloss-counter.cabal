@@ -19,4 +19,5 @@ executable gloss-counter
                      , View
                      , Fileload
                      , Animations
+                     , Tiles
   default-language:    Haskell2010
