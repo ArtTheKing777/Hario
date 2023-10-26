@@ -18,9 +18,12 @@ harioSpeed :: Float
 harioSpeed = 10
 
 view :: GameState -> IO Picture
-view g@(StartScreenState k t mp)  = return (testMP mp)
+view g@(StartScreenState k t mp)  = 
 view g@(LevelSelectState k t)  = return blank
 view g@(LevelPlayingState k t l) = testShow t (player l)
+
+loadUI:: GameState -> IO Picture
+loadUI = do
 
 testShow :: Float -> Hario -> IO Picture
 testShow t p = do
