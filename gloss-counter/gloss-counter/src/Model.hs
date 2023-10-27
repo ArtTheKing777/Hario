@@ -7,7 +7,7 @@ import qualified Data.Set as S
 import Prelude hiding (Left, Right)
 import Fileload (getHarioBmp)
 
-data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float}
+data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement]}
               | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement]}
               | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float, 
                                     level::Level}
@@ -19,6 +19,10 @@ initialStartScreenState:: GameState
 initialStartScreenState = StartScreenState S.empty 0 (0,0) 
  (  addUIElement (somethingElse getHarioBmp (0.5,0.5) (0,0)) $ 
     addUIElement (button "start" (0.3,0.3) (0,-150) red) (pure []))
+
+initialLevelSelectState:: GameState
+initialLevelSelectState = StartScreenState S.empty 0 (0,0) 
+ (addUIElement (button "1" (0.3,0.3) (0,-150) red) (pure []))
 
 
     --LevelPlayingState S.empty 0 (Level (Hario(0, 0) Walk Small Left 10) [] [[]])

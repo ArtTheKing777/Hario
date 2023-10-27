@@ -20,7 +20,7 @@ harioSpeed = 10
 
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp _)  = loadUI g
-view g@(LevelSelectState k t)  = return blank
+view g@(LevelSelectState k t mp _)  = loadUI g
 view g@(LevelPlayingState k t l) = testShow t (player l)
 
 loadUI:: GameState -> IO Picture
