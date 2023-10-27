@@ -2,9 +2,10 @@
 --   which represent the state of the game
 module Model where
 import UI
-import Graphics.Gloss.Interface.IO.Game ( Point, Key )
+import Graphics.Gloss.Interface.IO.Game ( Point, Key, black, red )
 import qualified Data.Set as S
 import Prelude hiding (Left, Right)
+import Fileload (getHarioBmp)
 
 data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float}
               | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement]}
@@ -12,7 +13,14 @@ data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float}
                                     level::Level}
 
 initialState :: GameState
-initialState = StartScreenState S.empty 0 (0,0) (pure [])
+initialState = initialStartScreenState
+
+initialStartScreenState:: GameState
+initialStartScreenState = StartScreenState S.empty 0 (0,0) 
+ (  addUIElement (somethingElse getHarioBmp (0.5,0.5) (0,0)) $ 
+    addUIElement (button "start" (0.3,0.3) (0,-150) red) (pure []))
+
+
     --LevelPlayingState S.empty 0 (Level (Hario(0, 0) Walk Small Left 10) [] [[]])
 
 data PlayerState = Idle | Walk | Jump | Fall | Die | Victory | Swim
@@ -39,9 +47,10 @@ type Row = [Field]
 type WorldGrid = [Row]
 data Level = Level{player::Hario, enemies::[Enemy], grid::WorldGrid}
 
-addUIElement :: IO [UIElement] -> IO UIElement -> IO [UIElement]
-addUIElement l e = do
+addUIElement ::  IO UIElement -> IO [UIElement] -> IO [UIElement]
+addUIElement e l = do
                     uie <- e
                     uies <- l
                     return (uies ++ [uie])
+
                     
