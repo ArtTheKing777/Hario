@@ -79,16 +79,18 @@ findHarioPos gIO = do
     g <- gIO
     let check c = case c of
             H -> True
-            c -> False
+            _ -> False
         checkline xp l = case l of
-                [] -> -1
-                (x:xs) -> if check x then xp else checkline (xp+1) xs
+                [] -> Nothing
+                (x:xs) -> if check x 
+                          then Just xp 
+                          else checkline (xp+1) xs
         checkgrid yp g = case g of
                 [] -> (0,0)
                 (y:ys) -> let xp = checkline 0 y in 
-                    if xp >= 0 
-                    then (xp,yp)
-                    else checkgrid yp ys
+                          case xp of
+                          Just x -> (x,yp)
+                          Nothing -> checkgrid (yp+1) ys
     return (checkgrid 0 g)
 
 findEnemyPos:: IO [[Field]] -> IO [Enemy]

@@ -21,7 +21,7 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp _)  = loadUI g
 view g@(LevelSelectState k t mp _)  = loadUI g
-view g@(LevelPlayingState k t l) = testShow t (player l)
+view g@(LevelPlayingState k t (Level (Hario p _ _ _ _) _ _)) = testMP p
 
 loadUI:: GameState -> IO Picture
 loadUI (StartScreenState _ _ _ ui) = pictures . map getUIElemtpic <$> ui
@@ -31,8 +31,10 @@ testShow t p = do
                 animation <- harioIdleAnimation (power p) t harioSpeed
                 return (scale 3 3 animation)
 
-testMP :: (Float,Float) -> Picture
-testMP mp = scale 0.1 0.1 (color blue (text (show (fst mp) ++ " " ++ show (snd mp))))
+testMP :: IO (Float,Float) -> IO Picture
+testMP mpio = do
+    mp <- mpio
+    return (scale 0.1 0.1 (color blue (text (show (fst mp) ++ " " ++ show (snd mp)))))
 
 testButtonInput :: S.Set Key -> Picture
 testButtonInput k = color blue (if (S.member (MouseButton LeftButton) k) then Text ("pressed") else Text ("no"))
