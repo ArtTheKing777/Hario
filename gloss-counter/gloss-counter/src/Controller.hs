@@ -46,6 +46,7 @@ whichButtonPressed (x:xs) mp = whichButtonPressed xs mp
 buttonPressedActions:: String -> GameState -> GameState
 buttonPressedActions b s = case b of
     "start" -> initialLevelSelectState
+    "1" -> initialLevelPlayingState b
     b -> s
 
 -- | Handle user input

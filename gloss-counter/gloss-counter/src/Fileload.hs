@@ -72,4 +72,9 @@ getFlagBmp = loadBitmapData "media/tiles/flag.bmp"
 
 getHoolitBillTowerBmp :: IO BitmapData
 getHoolitBillTowerBmp = loadBitmapData "media/tiles/bulletbilltower.bmp"
+
+getLevel :: String -> IO [[Char]]
+getLevel s = do
+    l <- readFile ("media/Levels/Level"++s)
+    return (lines l)
             
