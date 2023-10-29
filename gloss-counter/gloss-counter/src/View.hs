@@ -22,7 +22,7 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp _)  = loadUI g
 view g@(LevelSelectState k t mp _)  = loadUI g
-view g@(LevelPlayingState k t l@(Level h _ _)) = loadLevel l t
+view g@(LevelPlayingState k t l@(Level h eio _)) = loadLevel l t
 
 loadLevel::Level -> Float -> IO Picture
 loadLevel l@(Level h@(Hario pio _ _ _ _) e wio) eT = do

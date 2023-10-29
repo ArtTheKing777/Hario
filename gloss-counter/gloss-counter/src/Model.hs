@@ -99,29 +99,26 @@ findEnemyPos gIO = do
     let check c = case c of
             E t -> Just t
             c -> Nothing
-        checkline xp l = case l of
-                [] -> Nothing
+        checkline xp yp l = case l of
+                [] -> []
                 (x:xs) -> let t = check x in
                     case t of
-                        Just t -> Just(xp,t)
-                        Nothing -> checkline (xp+1) xs
-        checkgrid yp g = case g of
+                        Just t -> Enemy (xp,yp) t Alive Right : checkline (xp+1) yp l
+                        Nothing -> checkline (xp+1) yp xs
+        checkgrid ypg gi = case gi of
                 [] -> []
-                (y:ys) -> let xp = checkline 0 y in 
-                    case xp of
-                        Just xt -> Enemy (fst xt,yp) (snd xt) Alive Right : checkgrid yp g
-                        Nothing -> checkgrid (yp+1) ys
+                (y:ys) -> checkline 0 ypg y ++ checkgrid (ypg+1) ys
     return (checkgrid 0 g)
 
 createGrid::IO [[Char]] -> IO WorldGrid
 createGrid cgio = do
     cg <- cgio
     let char c = case c of
-            '#' -> W 0
+            '#' -> W 4
             '.' -> A
             '1' -> H
             'G' -> C
-            'H' -> Q 3
+            'H' -> Q 5
             'X' -> X 1
             'I' -> I 4
             'M' -> E Hoomba
