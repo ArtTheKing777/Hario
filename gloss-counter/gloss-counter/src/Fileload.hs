@@ -12,6 +12,12 @@ makeListofSheet :: Rectangle -> BitmapData -> Int -> [Picture]
 makeListofSheet r@(Rectangle (x,y) (w,h)) bmp l | l >= w  = BitmapSection r bmp : makeListofSheet (Rectangle (x+w+1, y) (w,h)) bmp (l-w)
                                                 | otherwise = []
 
+--need them swapped somewhere
+makeListofSheet2 :: Rectangle -> BitmapData ->  [Picture]
+makeListofSheet2 r@(Rectangle (x,y) (w,h)) bmp |  l >= w  = BitmapSection r bmp : makeListofSheet (Rectangle (x+w+1, y) (w,h)) bmp (l-w)
+                                               | otherwise = []
+                                               where l = fst(bitmapSize bmp) 
+
 -- load individual things
 getHarioBmp :: IO BitmapData
 getHarioBmp = loadBitmapData "media/Super_Hario_Bros_Logo.bmp"

@@ -49,15 +49,15 @@ data EnemyState = Alive | Dead
 
 data Enemy = Enemy { point::Point, etype::EnemyType, estate::EnemyState, edirection::Looking }
 
-data Field = W -- Wall
+data Field = W Int -- Wall
             |A -- Air
             |H -- player start position (Hario)
             |C -- Coin
-            |X -- Finish
-            |Q -- ?block
-            |B -- Block
+            |X Int -- Finish
+            |Q Int -- ?block
+            |B Int -- Block
             |P -- platform
-            |I -- pipe
+            |I Int -- pipe
             |E EnemyType
 type Row = [Field]
 type WorldGrid = [Row]
@@ -117,13 +117,13 @@ createGrid::IO [[Char]] -> IO WorldGrid
 createGrid cgio = do
     cg <- cgio
     let char c = case c of
-            '#' -> W
+            '#' -> W 0
             '.' -> A
             '1' -> H
             'G' -> C
-            'H' -> Q
-            'X' -> X
-            'I' -> I
+            'H' -> Q 3
+            'X' -> X 1
+            'I' -> I 4
             'M' -> E Hoomba
             'W' -> E Worm
             c   -> A --if it doesn't know just air
