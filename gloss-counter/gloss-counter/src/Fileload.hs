@@ -23,40 +23,40 @@ getHarioBmp :: IO BitmapData
 getHarioBmp = loadBitmapData "media/Super_Hario_Bros_Logo.bmp"
 
 getHarioAnimationSheetBmp :: IO BitmapData
-getHarioAnimationSheetBmp = loadBitmapData "media/hario.bmp"
+getHarioAnimationSheetBmp = loadBitmapData "media/hario/hario.bmp"
 
 getFireHarioAnimationSheetBmp :: IO BitmapData
-getFireHarioAnimationSheetBmp = loadBitmapData "media/firehario.bmp"
+getFireHarioAnimationSheetBmp = loadBitmapData "media/hario/firehario.bmp"
 
 getSmallHarioAnimationSheetBmp :: IO BitmapData
-getSmallHarioAnimationSheetBmp = loadBitmapData "media/smallhario.bmp"
+getSmallHarioAnimationSheetBmp = loadBitmapData "media/hario/smallhario.bmp"
 
 getTextBoxBmp :: IO BitmapData
 getTextBoxBmp = loadBitmapData "media/textBox.bmp"
 
 getHenemiesBmp :: IO BitmapData
-getHenemiesBmp = loadBitmapData "media/henemies.bmp"
+getHenemiesBmp = loadBitmapData "media/enemies/henemies.bmp"
 
 getHowserBmp :: IO BitmapData
-getHowserBmp = loadBitmapData "media/howser.bmp"
+getHowserBmp = loadBitmapData "media/enemies/howser.bmp"
 
 getHammerBmp :: IO BitmapData
-getHammerBmp = loadBitmapData "media/hammer.bmp"
+getHammerBmp = loadBitmapData "media/enemies/hammer.bmp"
 
 getFireBmp :: IO BitmapData
-getFireBmp = loadBitmapData "media/fire.bmp"
+getFireBmp = loadBitmapData "media/enemies/fire.bmp"
 
 getWormBmp :: IO [BitmapData]
 getWormBmp = do
-                move <- loadBitmapData "media/worm/Maggot-Move.bmp" 
-                spit <- loadBitmapData "media/worm/Maggot-Spit.bmp"
-                charge <- loadBitmapData "media/worm/Maggot-Charge.bmp"
+                move <- loadBitmapData "media/enemies/Worm/Maggot-Move.bmp" 
+                spit <- loadBitmapData "media/enemies/Worm/Maggot-Spit.bmp"
+                charge <- loadBitmapData "media/enemies/Worm/Maggot-Charge.bmp"
                 return [move, spit, charge]
 
 getAcidBmp :: IO [BitmapData]
 getAcidBmp = do
-            acidmove <- loadBitmapData "media/worm/AcidBlob-Move.bmp"
-            acidsplat <- loadBitmapData "media/worm/AcitSplat.bmp"
+            acidmove <- loadBitmapData "media/enemies/Worm/AcidBlob-Move.bmp"
+            acidsplat <- loadBitmapData "media/enemies/Worm/AcitSplat.bmp"
             return [acidmove, acidsplat]
 
 --load tiles

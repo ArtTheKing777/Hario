@@ -24,6 +24,7 @@ view g@(StartScreenState k t mp _)  = loadUI g
 view g@(LevelSelectState k t mp _)  = loadUI g
 view g@(LevelPlayingState k t l@(Level h eio _)) = loadLevel l t
 
+
 loadLevel::Level -> Float -> IO Picture
 loadLevel l@(Level h@(Hario pio _ _ _ _) e wio) eT = do
     let check c = case c of
@@ -71,9 +72,9 @@ cameraTranspose (x,y) p = translate (-16*x) (-16*y) p
 loadUI:: GameState -> IO Picture
 loadUI (StartScreenState _ _ _ ui) = pictures . map getUIElemtpic <$> ui
 
-testShow :: Float -> Hario -> IO Picture
-testShow t p = do
-                animation <- harioIdleAnimation (power p) t harioSpeed
+testShow :: Float -> Level -> IO Picture
+testShow t l = do
+                animation <- animateHario (player l) t
                 return (scale 3 3 animation)
 
 testMP :: IO (Float,Float) -> IO Picture

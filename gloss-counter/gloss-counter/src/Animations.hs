@@ -3,7 +3,7 @@
 module Animations where
 import Fileload
 import Graphics.Gloss.Data.Bitmap (Rectangle (Rectangle), BitmapData (bitmapSize))
-import Graphics.Gloss.Data.Picture (Picture (BitmapSection), scale, bitmap)
+import Graphics.Gloss.Data.Picture (Picture (BitmapSection), scale, bitmap, translate)
 import Data.Fixed (mod')
 import GHC.Float (int2Float)
 import Model
@@ -215,31 +215,31 @@ harioFallAnimation p eT s = do
 
 
 animateHario :: Hario -> Float -> IO Picture
-animateHario p t = case state p of
+animateHario p@(Hario (x,y) _ _ _ _ _) t = case state p of
                         Idle -> do
-                                    animation <- harioIdleAnimation (power p) t (speed p)
-                                    if direction p == Left then return (scale (-1) 1 animation)
-                                    else return animation
+                                    animation <- harioIdleAnimation (power p) t (fst (velocity p)*10)
+                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
+                                    else return (translate x y animation)
                         Walk -> do
-                                    animation <- harioWalkAnimation (power p) t (speed p)
-                                    if direction p == Left then return (scale (-1) 1 animation)
-                                    else return animation
+                                    animation <- harioWalkAnimation (power p) t (fst (velocity p)*10)
+                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
+                                    else return (translate x y animation)
                         Jump -> do
-                                    animation <- harioJumpAnimation (power p) t (speed p)
-                                    if direction p == Left then return (scale (-1) 1 animation)
-                                    else return animation
+                                    animation <- harioJumpAnimation (power p) t (fst (velocity p)*10)
+                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
+                                    else return (translate x y animation)
                         Fall -> do
-                                    animation <- harioFallAnimation (power p) t (speed p)
-                                    if direction p == Left then return (scale (-1) 1 animation)
-                                    else return animation
+                                    animation <- harioFallAnimation (power p) t (fst (velocity p)*10)
+                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
+                                    else return (translate x y animation)
                         Die -> do
-                                    animation <- harioSquatAnimation (power p) t (speed p)
-                                    if direction p == Left then return (scale (-1) 1 animation)
-                                    else return animation
+                                    animation <- harioSquatAnimation (power p) t (fst (velocity p)*10)
+                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
+                                    else return (translate x y animation)
                         Swim -> do
-                                    animation <- harioSwimAnimation (power p) t (speed p)
-                                    if direction p == Left then return (scale (-1) 1 animation)
-                                    else return animation
+                                    animation <- harioSwimAnimation (power p) t (fst (velocity p)*10)
+                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
+                                    else return (translate x y animation)
 -- | 270x-35px for normal hario
 -- | 360x-71px from (0, -35) for fire hario
 -- | 251x-89px from (0, -71) for small hario

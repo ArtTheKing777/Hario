@@ -2,7 +2,7 @@
 --   which represent the state of the game
 module Model where
 import UI
-import Graphics.Gloss.Interface.IO.Game ( Point, Key, black, red )
+import Graphics.Gloss.Interface.IO.Game ( Point, Key, black, red, Vector)
 import qualified Data.Set as S
 import Prelude hiding (Left, Right)
 import Fileload (getHarioBmp, getLevel)
@@ -29,6 +29,7 @@ initialLevelPlayingState:: String -> GameState
 initialLevelPlayingState s = LevelPlayingState S.empty 0 (createLevel s)
 
     --LevelPlayingState S.empty 0 (Level (Hario(0, 0) Walk Small Left 10) [] [[]])
+--initialState = LevelPlayingState S.empty 0 (Level (Hario(0, 0) Idle Small Left (0,0) True) [] [[]])
 
 data PlayerState = Idle | Walk | Jump | Fall | Die | Victory | Swim
     deriving (Eq)
@@ -39,9 +40,11 @@ data Looking = Left | Right
 data PlayerPower = Small | Big | Fire
     deriving (Eq)
 
-data Hario = Hario { hpos::IO Point, state::PlayerState,
-                     power::PlayerPower, direction::Looking, speed::Float}
+{-data Hario = Hario { hpos::IO Point, state::PlayerState,
+                     power::PlayerPower, direction::Looking, speed::Float} -}
 
+data Hario = Hario { hpos::Point, state::PlayerState,
+                     power::PlayerPower, direction::Looking, velocity::Vector, onground::Bool}
 data EnemyType = Hoomba | HoopaTroopa | HoopaParaTroopa | Hirrana | RedHirrana | HeepHeep | Hloober | Hakitu | Hiny | HuzzyBeetle | HoolitBill 
                         | HammerBrother | Worm | Howser | HoopaShell | HireBall | Hacid | Hammer  | HakituProjectile
 
@@ -70,7 +73,7 @@ addUIElement e l = do
                     return (uies ++ [uie])
 
 createLevel::String -> Level
-createLevel s = Level (Hario (findHarioPos grid) Idle Small Right 10)  (findEnemyPos grid) grid
+createLevel s = Level (Hario (findHarioPos grid) Idle Small Right 10 True)  (findEnemyPos grid) grid
     where sGrid = getLevel s
           grid = createGrid sGrid
 
