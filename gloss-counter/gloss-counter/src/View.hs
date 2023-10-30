@@ -26,7 +26,7 @@ view g@(LevelPlayingState k t l@(Level h eio _)) = loadLevel l t
 
 
 loadLevel::Level -> Float -> IO Picture
-loadLevel l@(Level h@(Hario pio _ _ _ _) e wio) eT = do
+loadLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT = do
     let check c = case c of
             W i -> Just(W i)
             C   -> Just C

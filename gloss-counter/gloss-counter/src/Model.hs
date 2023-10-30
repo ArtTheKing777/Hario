@@ -72,8 +72,10 @@ addUIElement e l = do
                     uies <- l
                     return (uies ++ [uie])
 
+
+-- | TODO: dit moet anders
 createLevel::String -> Level
-createLevel s = Level (Hario (findHarioPos grid) Idle Small Right 10 True)  (findEnemyPos grid) grid
+createLevel s = Level (Hario (0, 0){-(findHarioPos grid)-} Idle Small Right (0, 0) True)  (findEnemyPos grid) grid
     where sGrid = getLevel s
           grid = createGrid sGrid
 

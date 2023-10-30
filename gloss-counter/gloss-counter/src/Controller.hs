@@ -10,6 +10,7 @@ import Graphics.Gloss.Interface.IO.Game
 import System.Random
 import UI (UIElement (Button, SomethingElse), button, hoveredButton)
 import GHC.Float (int2Float)
+import Hario
 
 -- | Handle one iteration of the game | eT = elaspsedTme
 update :: Float -> GameState -> IO GameState
@@ -48,12 +49,11 @@ buttonPressedActions b s = case b of
     "start" -> initialLevelSelectState
     "1" -> initialLevelPlayingState b
     b -> s
-import Hario
 
 -- | Handle one iteration of the game | eT = elaspsedTme
 step :: Float -> GameState -> IO GameState
-step eT (LevelSelectState k t ) = return (LevelSelectState k (t + eT))
-step eT (StartScreenState k t mp) = return (StartScreenState k (t + eT) mp)
+step eT (LevelSelectState k t p l) = return (LevelSelectState k (t + eT) p l)
+step eT (StartScreenState k t mp l) = return (StartScreenState k (t + eT) mp l)
 step eT (LevelPlayingState k t l)   | S.member (Char 'd')k = return (LevelPlayingState k (t + eT) l {player = updateHario(moveRight (player l))})
                                     | S.member (Char 'a')k = return (LevelPlayingState k (t + eT) l {player = updateHario(moveLeft (player l))})
                                     | S.member (SpecialKey KeySpace)k = return (LevelPlayingState k (t + eT) l {player = updateHario(jump (player l))})
