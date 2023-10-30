@@ -6,7 +6,7 @@ import Graphics.Gloss (Rectangle(Rectangle), BitmapData (bitmapSize))
 tiles :: IO [Picture]
 tiles = do
             tilesbmp <- getTilesBmp
-            return (makeListofSheet (Rectangle (0,-1) (16, -16)) (tilesbmp !! 0) (fst (bitmapSize (tilesbmp !! 0))) ++ makeListofSheet (Rectangle (0,-1) (16, -16)) (tilesbmp !! 1) (fst (bitmapSize (tilesbmp !! 1))))
+            return (makeListofSheet (Rectangle (0,-1) (16, -16)) (tilesbmp !! 0) (fst (bitmapSize (tilesbmp !! 0))) ++ makeListofSheet (Rectangle (0,-1) (15, -15)) (tilesbmp !! 1) (fst (bitmapSize (tilesbmp !! 1))))
 
 pipe :: IO [Picture]
 pipe = do

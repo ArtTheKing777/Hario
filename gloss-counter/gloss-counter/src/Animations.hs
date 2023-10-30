@@ -7,6 +7,11 @@ import Graphics.Gloss.Data.Picture (Picture (BitmapSection), scale, bitmap, tran
 import Data.Fixed (mod')
 import GHC.Float (int2Float)
 import Model
+    ( EnemyType(..),
+      Hario(Hario, direction, state, power, velocity),
+      PlayerPower(..),
+      Looking(Left),
+      PlayerState(Swim, Idle, Walk, Jump, Fall, Die) )
 import Prelude hiding (Left)
 
 -- time, time per frame, pictures

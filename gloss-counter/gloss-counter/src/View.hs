@@ -24,11 +24,11 @@ view g@(StartScreenState k t mp _)  = loadUI g
 view g@(LevelSelectState k t mp _)  = loadUI g
 view g@(LevelPlayingState k t l) = do
                                     level <- l
-                                    loadLevel level t
+                                    showLevel level t
 
 
-loadLevel::Level -> Float -> IO Picture
-loadLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT = do
+showLevel :: Level -> Float -> IO Picture
+showLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT = do
     let check c = case c of
             W i -> Just(W i)
             C   -> Just C
@@ -40,29 +40,43 @@ loadLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT = do
                 [] -> []
                 (x:xs) -> let t = check x in
                     case t of
-                        Just t -> fmap (translate (8+(16*xp)) (-8+(-16*yp))) (loadField t eT) : checkline (xp+1) yp xs
+                        Just t -> fmap (translate (8+(16*xp)) (-8+(-16*yp))) (showField t eT) : checkline (xp+1) yp xs
                         Nothing -> checkline (xp+1) yp xs
         checkgrid yp g = case g of
                 [] -> []
                 (y:ys) -> checkline 0 yp y ++ checkgrid (yp+1) ys
     w <- pure wio
+<<<<<<< HEAD
     fP <- sequenceA (checkgrid 0 w)
+=======
+    tilefP <- sequenceA (checkgrid 0 w)
+    harioanimation <- animateHario h eT
+    let fP = tilefP ++ [harioanimation]
+>>>>>>> 02ef3efc1a0ddad801088e980d08ff3b1d483846
     return (translate (-400) 0 (pictures fP))
 
-loadField:: Field -> Float -> IO Picture
-loadField f t = do
+showField:: Field -> Float -> IO Picture
+showField f t = do
         let getBmpIO fi = case fi of
                 W i -> fmap head getTilesBmp
                 C   -> getCoinsBmp
-                Q i -> fmap (!!1) getTilesBmp
+                Q i -> fmap (!! 1) getTilesBmp
                 X i -> getFlagBmp
                 I i -> getPipeBmp
             getPicture fii ti = case fii of
+<<<<<<< HEAD
                 W i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16)) 190) (getBmpIO fii)
                 Q i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16)) 16) (getBmpIO fii)
                 X i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16)) 48) (getBmpIO fii)
                 I i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 192) (getBmpIO fii)
                 C   -> fmap (animationLoop ti 0.2 . makeListofSheet2 (Rectangle (0,-1) (16,-16)) 48) (getBmpIO fii)
+=======
+                W i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16))) (getBmpIO fii)
+                Q i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (15,-16))) (getBmpIO fii)
+                X i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16))) (getBmpIO fii)
+                I i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16))) (getBmpIO fii)
+                C   -> fmap (animationLoop ti 0.2 . makeListofSheet2 (Rectangle (0,0) (16,-16))) (getBmpIO fii)  -- todo: todelo bug (fix maybe)
+>>>>>>> 02ef3efc1a0ddad801088e980d08ff3b1d483846
                 fii -> fmap bitmap (getBmpIO f)
         getPicture f t
 

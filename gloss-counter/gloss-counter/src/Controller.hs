@@ -54,20 +54,24 @@ buttonPressedActions b s = case b of
 step :: Float -> GameState -> IO GameState
 step eT (LevelSelectState k t p l) = return (LevelSelectState k (t + eT) p l)
 step eT (StartScreenState k t mp l) = return (StartScreenState k (t + eT) mp l)
-step eT (LevelPlayingState k t l) = do
-                                        level <- l
-                                        if S.member (Char 'd')k 
-                                            then return (LevelPlayingState k (t + eT) (pure(level {player = updateHario(moveRight (player level))})))
-                                        else if S.member (Char 'a')k 
-                                            then return (LevelPlayingState k (t + eT) (pure(level {player = updateHario(moveLeft (player level))})))
-                                        else if S.member (SpecialKey KeySpace)k 
-                                            then return (LevelPlayingState k (t + eT) (pure(level {player = updateHario(jump (player level))})))
-                                        else return (LevelPlayingState k (t + eT) (pure(level {player = updateHario(player level)})))
+step eT s@(LevelPlayingState k t l) = updateLevelState eT s
 
-                                  {-| S.member (Char 'd')k = return (LevelPlayingState k (t + eT) l {player = updateHario(moveRight (player l))})
-                                    | S.member (Char 'a')k = return (LevelPlayingState k (t + eT) l {player = updateHario(moveLeft (player l))})
-                                    | S.member (SpecialKey KeySpace)k = return (LevelPlayingState k (t + eT) l {player = updateHario(jump (player l))})
-                                    | otherwise = return(LevelPlayingState k (t + eT) l {player = updateHario(idle (player l))} ) -}
+updateLevelState :: Float -> GameState -> IO GameState
+updateLevelState eT (LevelPlayingState k t l) = do
+                                                    level <- l
+                                                    if S.member (Char 'd')k 
+                                                        then return (LevelPlayingState k (t + eT) (pure(update' eT "Left" level)))
+                                                    else if S.member (Char 'a')k 
+                                                        then return (LevelPlayingState k (t + eT) (pure(update' eT "Right" level)))
+                                                    else if S.member (SpecialKey KeySpace)k 
+                                                        then return (LevelPlayingState k (t + eT) (pure(update' eT "Jump" level)))
+                                                    else return (LevelPlayingState k (t + eT) (pure(update' eT "" level)))
+
+update' :: Float -> String -> Level -> Level
+update' eT "Left" l@(Level p e g)  = Level (updateHario(moveLeft (player l))) e g
+update' eT "Right" l@(Level p e g) = Level (updateHario(moveRight (player l))) e g
+update' eT "Jump" l@(Level p e g)  = Level (updateHario(jump (player l))) e g
+update' eT _ l@(Level p e g)       = Level (updateHario (player l)) e g
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState

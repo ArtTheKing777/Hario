@@ -50,7 +50,7 @@ data EnemyType = Hoomba | HoopaTroopa | HoopaParaTroopa | Hirrana | RedHirrana |
 
 data EnemyState = Alive | Dead
 
-data Enemy = Enemy { point::Point, etype::EnemyType, estate::EnemyState, edirection::Looking }
+data Enemy = Enemy { point::Point, etype::EnemyType, estate::EnemyState, edirection::Looking, eupdate::Float->Enemy->Enemy }
 
 data Field = W Int -- Wall
             |A -- Air
@@ -110,7 +110,7 @@ findEnemyPos gIO = do
                 [] -> []
                 (x:xs) -> let t = check x in
                     case t of
-                        Just t -> Enemy (xp,yp) t Alive Right : checkline (xp+1) yp l
+                        Just t -> Enemy (xp,yp) t Alive Right genericEnemyUpdate : checkline (xp+1) yp l 
                         Nothing -> checkline (xp+1) yp xs
         checkgrid ypg gi = case gi of
                 [] -> []
@@ -140,3 +140,8 @@ createGrid cg = do
             [] -> []
             (y:ys) -> charline y : chargrid ys
     return (chargrid cg)
+
+-- enemy update functions
+
+genericEnemyUpdate :: Float -> Enemy -> Enemy
+genericEnemyUpdate eT e = e
