@@ -22,7 +22,9 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp _)  = loadUI g
 view g@(LevelSelectState k t mp _)  = loadUI g
-view g@(LevelPlayingState k t l@(Level h eio _)) = loadLevel l t
+view g@(LevelPlayingState k t l) = do
+                                    level <- l
+                                    loadLevel level t
 
 
 loadLevel::Level -> Float -> IO Picture
@@ -43,7 +45,7 @@ loadLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT = do
         checkgrid yp g = case g of
                 [] -> []
                 (y:ys) -> checkline 0 yp y ++ checkgrid (yp+1) ys
-    w <- wio
+    w <- pure wio
     fP <- sequenceA (checkgrid 0 w)
     return (translate (-400) 0 (pictures fP))
 

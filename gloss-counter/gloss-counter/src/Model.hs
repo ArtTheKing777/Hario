@@ -11,7 +11,7 @@ import Data.Maybe (isJust)
 data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement]}
               | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement]}
               | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float, 
-                                    level::Level}
+                                    level::IO Level}
 
 initialState :: GameState
 initialState = initialStartScreenState
@@ -64,7 +64,7 @@ data Field = W Int -- Wall
             |E EnemyType
 type Row = [Field]
 type WorldGrid = [Row]
-data Level = Level{player::Hario, enemies::IO [Enemy], grid::IO WorldGrid}
+data Level = Level{player::Hario, enemies::[Enemy], grid::WorldGrid}
 
 addUIElement ::  IO UIElement -> IO [UIElement] -> IO [UIElement]
 addUIElement e l = do
@@ -73,15 +73,17 @@ addUIElement e l = do
                     return (uies ++ [uie])
 
 
--- | TODO: dit moet anders
-createLevel::String -> Level
-createLevel s = Level (Hario (0, 0){-(findHarioPos grid)-} Idle Small Right (0, 0) True)  (findEnemyPos grid) grid
-    where sGrid = getLevel s
-          grid = createGrid sGrid
+createLevel::String -> IO Level
+createLevel s = do
+                    sGrid <- getLevel s
+                    grid <- createGrid sGrid
+                    harioPos <- findHarioPos grid
+                    enemyPos <- findEnemyPos grid
+                    return (Level (Hario harioPos Idle Small Right (0,0) True) enemyPos grid)
 
-findHarioPos:: IO [[Field]] -> IO Point
+findHarioPos:: [[Field]] -> IO Point
 findHarioPos gIO = do 
-    g <- gIO
+    g <- pure gIO
     let check c = case c of
             H -> True
             _ -> False
@@ -98,9 +100,9 @@ findHarioPos gIO = do
                           Nothing -> checkgrid (yp+1) ys
     return (checkgrid 0 g)
 
-findEnemyPos:: IO [[Field]] -> IO [Enemy]
+findEnemyPos:: [[Field]] -> IO [Enemy]
 findEnemyPos gIO = do
-    g <- gIO
+    g <- pure gIO
     let check c = case c of
             E t -> Just t
             c -> Nothing
@@ -115,9 +117,9 @@ findEnemyPos gIO = do
                 (y:ys) -> checkline 0 ypg y ++ checkgrid (ypg+1) ys
     return (checkgrid 0 g)
 
-createGrid::IO [[Char]] -> IO WorldGrid
+createGrid::[[Char]] -> IO WorldGrid
 createGrid cgio = do
-    cg <- cgio
+    cg <- pure cgio
     let char c = case c of
             '#' -> W 4
             '.' -> A
