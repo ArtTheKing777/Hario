@@ -118,16 +118,18 @@ findEnemyPos gIO = do
     return (checkgrid 0 g)
 
 createGrid::[[Char]] -> IO WorldGrid
-createGrid cgio = do
-    cg <- pure cgio
+createGrid cg = do
     let char c = case c of
             '#' -> W 4
             '.' -> A
             '1' -> H
             'G' -> C
-            'H' -> Q 5
+            'H' -> Q 0
             'X' -> X 1
             'I' -> I 4
+            'i' -> I 5
+            'B' -> I 10
+            'b' -> I 11
             'M' -> E Hoomba
             'W' -> E Worm
             c   -> A --if it doesn't know just air

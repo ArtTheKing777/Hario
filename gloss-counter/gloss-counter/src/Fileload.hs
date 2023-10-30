@@ -13,10 +13,10 @@ makeListofSheet r@(Rectangle (x,y) (w,h)) bmp l | l >= w  = BitmapSection r bmp 
                                                 | otherwise = []
 
 --need them swapped somewhere
-makeListofSheet2 :: Rectangle -> BitmapData ->  [Picture]
-makeListofSheet2 r@(Rectangle (x,y) (w,h)) bmp |  l >= w  = BitmapSection r bmp : makeListofSheet (Rectangle (x+w, y) (w,h)) bmp (l-w)
-                                               | otherwise = []
-                                               where l = fst(bitmapSize bmp) 
+makeListofSheet2 :: Rectangle -> Int -> BitmapData ->  [Picture]
+makeListofSheet2 r@(Rectangle (x,y) (w,h)) l  bmp |  l >= w  = BitmapSection r bmp : makeListofSheet2 (Rectangle (x+w, y) (w,h)) (l-w) bmp
+                                                  | otherwise = []
+                        
 
 -- load individual things
 getHarioBmp :: IO BitmapData

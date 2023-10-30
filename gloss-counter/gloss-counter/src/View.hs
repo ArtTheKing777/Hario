@@ -47,7 +47,7 @@ loadLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT = do
                 (y:ys) -> checkline 0 yp y ++ checkgrid (yp+1) ys
     w <- pure wio
     fP <- sequenceA (checkgrid 0 w)
-    return (cameraTranspose pio (pictures fP))
+    return (translate (-400) 0 (pictures fP))
 
 loadField:: Field -> Float -> IO Picture
 loadField f t = do
@@ -58,11 +58,11 @@ loadField f t = do
                 X i -> getFlagBmp
                 I i -> getPipeBmp
             getPicture fii ti = case fii of
-                W i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16))) (getBmpIO fii)
-                Q i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16))) (getBmpIO fii)
-                X i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16))) (getBmpIO fii)
-                I i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16))) (getBmpIO fii)
-                C   -> fmap (animationLoop ti 0.2 . makeListofSheet2 (Rectangle (0,-1) (16,-16))) (getBmpIO fii)
+                W i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16)) 190) (getBmpIO fii)
+                Q i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16)) 16) (getBmpIO fii)
+                X i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,-1) (16,-16)) 48) (getBmpIO fii)
+                I i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 192) (getBmpIO fii)
+                C   -> fmap (animationLoop ti 0.2 . makeListofSheet2 (Rectangle (0,-1) (16,-16)) 48) (getBmpIO fii)
                 fii -> fmap bitmap (getBmpIO f)
         getPicture f t
 
