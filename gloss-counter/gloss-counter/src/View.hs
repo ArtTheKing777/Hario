@@ -47,7 +47,7 @@ loadLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT = do
                 (y:ys) -> checkline 0 yp y ++ checkgrid (yp+1) ys
     w <- pure wio
     fP <- sequenceA (checkgrid 0 w)
-    return (translate (-400) 0 (pictures fP))
+    return (cameraTranspose pio (pictures fP))
 
 loadField:: Field -> Float -> IO Picture
 loadField f t = do
@@ -66,8 +66,8 @@ loadField f t = do
                 fii -> fmap bitmap (getBmpIO f)
         getPicture f t
 
-cameraTranspose:: (Float,Float) -> Picture -> Picture
-cameraTranspose (x,y) p = translate (-16*x) (-16*y) p
+cameraTranspose:: Point -> Picture -> Picture
+cameraTranspose (x,y) = translate (-16*x) (-16*y)
 
 
 
