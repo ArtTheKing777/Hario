@@ -9,6 +9,7 @@ import Fileload (getHarioBmp, getLevel)
 import Data.Maybe (isJust)
 import Data.Map
 import Graphics.Gloss (BitmapData)
+import Control.Monad.State
 
 data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData}
               | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData}
@@ -17,6 +18,7 @@ data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePo
 
 initialState :: Map String BitmapData -> GameState
 initialState = initialStartScreenState
+
 
 initialStartScreenState:: Map String BitmapData -> GameState
 initialStartScreenState = StartScreenState S.empty 0 (0,0) 

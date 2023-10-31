@@ -13,13 +13,13 @@ import GHC.Float (int2Float)
 import Hario
 
 -- | Handle one iteration of the game | eT = elaspsedTme
-update :: Float -> GameState -> IO GameState
-update eT s@(LevelSelectState k t mp ui) = updateUI (t + eT) s
-update eT s@(StartScreenState k t mp ui) = updateUI (t + eT) s
-update eT s@(LevelPlayingState k t h) = step eT s
+update_ :: Float -> GameState -> IO GameState
+update_ eT s@(LevelSelectState k t mp ui a) = updateUI (t + eT) s
+update_ eT s@(StartScreenState k t mp ui a) = updateUI (t + eT) s
+update_ eT s@(LevelPlayingState k t h a) = step eT s
 
 updateUI :: Float -> GameState -> IO GameState
-updateUI eT s@(StartScreenState k t mp ui) = do
+updateUI eT s@(StartScreenState k t mp ui a) = do
     uic <- ui
     let news u = case u of
                 [] -> []
@@ -31,8 +31,8 @@ updateUI eT s@(StartScreenState k t mp ui) = do
         newstate = case whichButtonPressed uic mp of
                 (Just (Button tx _ _ _ _)) -> (if S.member (MouseButton LeftButton) k 
                     then buttonPressedActions tx s
-                    else StartScreenState k t mp (sequenceA (news uic))) --lol
-                Nothing -> StartScreenState k t mp (sequenceA (news uic))
+                    else StartScreenState k t mp (sequenceA (news uic)) a) --lol
+                Nothing -> StartScreenState k t mp (sequenceA (news uic)) a
     return newstate
 updateUI eT s = return s
 
@@ -46,27 +46,27 @@ whichButtonPressed (x:xs) mp = whichButtonPressed xs mp
 
 buttonPressedActions:: String -> GameState -> GameState
 buttonPressedActions b s = case b of
-    "start" -> initialLevelSelectState
-    "1" -> initialLevelPlayingState b
-    "2" -> initialLevelPlayingState b
+    "start" -> initialLevelSelectState (loadedAnimations s)
+    "1" -> initialLevelPlayingState (loadedAnimations s) b
+    "2" -> initialLevelPlayingState (loadedAnimations s) b
     b -> s
 
 -- | Handle one iteration of the game | eT = elaspsedTme
 step :: Float -> GameState -> IO GameState
-step eT (LevelSelectState k t p l) = return (LevelSelectState k (t + eT) p l)
-step eT (StartScreenState k t mp l) = return (StartScreenState k (t + eT) mp l)
-step eT s@(LevelPlayingState k t l) = updateLevelState eT s
+step eT (LevelSelectState k t p l a) = return (LevelSelectState k (t + eT) p l a)
+step eT (StartScreenState k t mp l a) = return (StartScreenState k (t + eT) mp l a)
+step eT s@(LevelPlayingState k t l a) = updateLevelState eT s
 
 updateLevelState :: Float -> GameState -> IO GameState
-updateLevelState eT (LevelPlayingState k t l) = do
+updateLevelState eT (LevelPlayingState k t l a) = do
                                                     level <- l
                                                     if S.member (Char 'd')k 
-                                                        then return (LevelPlayingState k (t + eT) (pure(update' eT "Left" level)))
+                                                        then return (LevelPlayingState k (t + eT) (pure(update' eT "Left" level)) a)
                                                     else if S.member (Char 'a')k 
-                                                        then return (LevelPlayingState k (t + eT) (pure(update' eT "Right" level)))
+                                                        then return (LevelPlayingState k (t + eT) (pure(update' eT "Right" level)) a)
                                                     else if S.member (SpecialKey KeySpace)k 
-                                                        then return (LevelPlayingState k (t + eT) (pure(update' eT "Jump" level)))
-                                                    else return (LevelPlayingState k (t + eT) (pure(update' eT "" level)))
+                                                        then return (LevelPlayingState k (t + eT) (pure(update' eT "Jump" level)) a)
+                                                    else return (LevelPlayingState k (t + eT) (pure(update' eT "" level)) a)
 
 update' :: Float -> String -> Level -> Level
 update' eT "Left" l@(Level p e g)  = Level (updateHario(moveLeft (player l))) e g
