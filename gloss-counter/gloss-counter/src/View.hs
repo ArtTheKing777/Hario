@@ -24,7 +24,8 @@ view g@(StartScreenState k t mp _ _)  = loadUI g
 view g@(LevelSelectState k t mp _ _)  = loadUI g
 view g@(LevelPlayingState k t l _) = do
                                     level <- l
-                                    showLevel level t
+                                    pic <- showLevel level t
+                                    return (pictures [pic, testTime t])
 
 
 showLevel :: Level -> Float -> IO Picture
@@ -88,3 +89,6 @@ testMP mpio = do
 
 testButtonInput :: S.Set Key -> Picture
 testButtonInput k = color blue (if (S.member (MouseButton LeftButton) k) then Text ("pressed") else Text ("no"))
+
+testTime :: Float -> Picture
+testTime eT = text (show eT)

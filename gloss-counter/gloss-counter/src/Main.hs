@@ -7,7 +7,7 @@ import View
 import Animations
 
 import Graphics.Gloss.Interface.IO.Game
-import Fileload (getAcidBmp)
+import Fileload (getAcidBmp, getHarioBmp, getHarioAnimationSheetBmp)
 
 
 import Graphics.Gloss (loadBMP)
@@ -17,17 +17,10 @@ import Data.Map
 main :: IO ()
 main = do
     --get all the frames and load them once
-    harioFrames <- getHarioFrames
-    harioFireFrames <- getFireHarioFrames
-    smallHarioFrames <- getSmallHarioFrames
-    henemyFrames <- getHenemyFrames
-    hammerFrames <- getHammerFrames
-    hireBallFrames <- getHireBallFrames 
-    acidFrames <- getAcidFrames 
-    wormFrames <- getWormFrames
-    howserFrames <- getHowserFrames
+    harioBmp <- getHarioBmp
+    harioAnimationSheetBmp <- getHarioAnimationSheetBmp
 
-    let loadedAnimations = fromList [("harioFrames",harioFrames),("harioFireFrames",harioFireFrames)]
+    let loadedAnimations = fromList [("harioFrames",harioBmp),("harioAnimationSheetBmp", harioAnimationSheetBmp)]
 
     playIO (InWindow "window" (800,450) (0, 0)) -- Or FullScreen
               (makeColorI 135 206 235 255)          -- Background color
