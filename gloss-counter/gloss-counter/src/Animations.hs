@@ -19,23 +19,17 @@ animationLoop :: Float -> Float -> [Picture] -> Picture
 animationLoop eT tF p = p !! floor (mod' (eT/tF) (int2Float (length p)))
 
 --load frames as [Pictures]
-getHarioFrames :: IO [Picture]
-getHarioFrames = do
-                    harioSheetBmp <- getHarioAnimationSheetBmp
-                    return (makeListofSheet (Rectangle (0, -1) (17, -35)) harioSheetBmp (fst (bitmapSize harioSheetBmp)))
-getFireHarioFrames :: IO [Picture]
-getFireHarioFrames = do
-                        fireHarioSheetBmp <- getFireHarioAnimationSheetBmp
-                        return (makeListofSheet (Rectangle (0, -36) (17, -36)) fireHarioSheetBmp (fst (bitmapSize fireHarioSheetBmp)))
-getSmallHarioFrames :: IO [Picture]
-getSmallHarioFrames = do
-                        smallHarioSheetBmp <- getSmallHarioAnimationSheetBmp
-                        return (makeListofSheet (Rectangle (0, -72) (17, -18)) smallHarioSheetBmp (fst (bitmapSize smallHarioSheetBmp)))
+getHarioFrames :: BitmapData -> [Picture]
+getHarioFrames harioSheetBmp = makeListofSheet (Rectangle (0, -1) (17, -35)) harioSheetBmp (fst (bitmapSize harioSheetBmp))
 
-getHenemyFrames :: IO [Picture]
-getHenemyFrames = do
-                    henemySheetBmp <- getHenemiesBmp
-                    return (makeListofSheet (Rectangle (0, -1) (17, -35)) henemySheetBmp (fst (bitmapSize henemySheetBmp)))
+getFireHarioFrames :: BitmapData -> [Picture]
+getFireHarioFrames fireHarioSheetBmp = makeListofSheet (Rectangle (0, -36) (17, -36)) fireHarioSheetBmp (fst (bitmapSize fireHarioSheetBmp))
+
+getSmallHarioFrames :: BitmapData -> [Picture]
+getSmallHarioFrames smallHarioSheetBmp = makeListofSheet (Rectangle (0, -72) (17, -18)) smallHarioSheetBmp (fst (bitmapSize smallHarioSheetBmp))
+
+getHenemyFrames :: BitmapData -> [Picture]
+getHenemyFrames henemySheetBmp = makeListofSheet (Rectangle (0, -1) (17, -35)) henemySheetBmp (fst (bitmapSize henemySheetBmp))
 
 getHammerFrames :: IO [Picture]
 getHammerFrames = do
@@ -68,9 +62,9 @@ getHowserFrames = do
                     howserSheetBmp <- getHowserBmp
                     return (makeListofSheet (Rectangle (0, -1) (35, -35)) howserSheetBmp (fst (bitmapSize howserSheetBmp)))
 
-getEnemyFrames :: EnemyType -> IO [Picture]
-getEnemyFrames e = do
-                    henemyframes <- getHenemyFrames
+getEnemyFrames :: EnemyType -> BitmapData -> IO [Picture]
+getEnemyFrames e henemyBmp= do
+                    let henemyframes = getHenemyFrames henemyBmp
                     case e of
                         Hoomba -> return [henemyframes !! 0, henemyframes !! 1, henemyframes !! 2]
                         HoopaTroopa -> return [henemyframes !! 3, henemyframes !! 4]
@@ -93,82 +87,61 @@ getEnemyFrames e = do
                         Worm -> getWormFrames
 
 -- player animation sheets
-idleSheet :: PlayerPower -> IO [Picture]
-idleSheet Small = do
-                    harioFrames <- getSmallHarioFrames
-                    return [head harioFrames]
-idleSheet Big = do
-                    harioFrames <- getHarioFrames
-                    return [head harioFrames]
-idleSheet Fire = do
-                    harioFrames <- getFireHarioFrames
-                    return [head harioFrames]
+idleSheet :: PlayerPower -> [BitmapData] -> [Picture]
+idleSheet Small [a,b,c] = [head(getSmallHarioFrames a)]
+idleSheet Big [a,b,c] = [head (getHarioFrames b)]
+idleSheet Fire [a,b,c] = [head (getFireHarioFrames c)]
 
-jumpSheet :: PlayerPower -> IO [Picture]
-jumpSheet Small = do
-                    harioFrames <- getSmallHarioFrames
-                    return [harioFrames !! 1, harioFrames !! 2]
-jumpSheet Big = do
-                    harioFrames <- getHarioFrames
-                    return [harioFrames !! 1, harioFrames !! 2]
-jumpSheet Fire = do
-                    harioFrames <- getFireHarioFrames
-                    return [harioFrames !! 1, harioFrames !! 2]
+jumpSheet :: PlayerPower -> [BitmapData] -> [Picture]
+jumpSheet Small [a,b,c] = [harioFrames !! 1, harioFrames !! 2]
+                    where harioFrames = getSmallHarioFrames a
+                    
+jumpSheet Big [a,b,c] = [harioFrames !! 1, harioFrames !! 2]
+                    where harioFrames = getSmallHarioFrames b
 
-squatSheet :: PlayerPower -> IO [Picture]
-squatSheet Small = do
-                    harioFrames <- getSmallHarioFrames
-                    return [harioFrames !! 3]
-squatSheet Big = do
-                    harioFrames <- getHarioFrames
-                    return [harioFrames !! 3]
-squatSheet Fire = do
-                    harioFrames <- getFireHarioFrames
-                    return [harioFrames !! 3]
+jumpSheet Fire [a,b,c] = [harioFrames !! 1, harioFrames !! 2]
+                    where harioFrames = getSmallHarioFrames c
 
-walkSheet :: PlayerPower -> IO [Picture]
-walkSheet Small = do
-                        harioFrames <- getSmallHarioFrames
-                        return [harioFrames !! 4, harioFrames !! 5, harioFrames !! 6, harioFrames !! 5]
-walkSheet Big = do
-                        harioFrames <- getHarioFrames
-                        return [harioFrames !! 4, harioFrames !! 5, harioFrames !! 6, harioFrames !! 5]
-walkSheet Fire = do
-                        harioFrames <- getFireHarioFrames
-                        return [harioFrames !! 4, harioFrames !! 5, harioFrames !! 6, harioFrames !! 5]
+squatSheet :: PlayerPower -> [BitmapData] -> [Picture]
+squatSheet Small [a,b,c] = [harioFrames !! 3]
+                    where harioFrames = getSmallHarioFrames a
+squatSheet Big [a,b,c] = [harioFrames !! 3]
+                    where harioFrames = getSmallHarioFrames b
+squatSheet Fire [a,b,c] = [harioFrames !! 3]
+                    where harioFrames = getSmallHarioFrames c
 
-swimSheet :: PlayerPower -> IO [Picture]
-swimSheet Small = do
-                    harioFrames <- getSmallHarioFrames
-                    return [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
-swimSheet Big = do
-                    harioFrames <- getHarioFrames
-                    return [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
-swimSheet Fire = do
-                    harioFrames <- getHarioFrames
-                    return [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
+walkSheet :: PlayerPower -> [BitmapData] -> [Picture]
+walkSheet Small [a,b,c] = [harioFrames !! 4, harioFrames !! 5, harioFrames !! 6, harioFrames !! 5]
+            where harioFrames = getSmallHarioFrames a
+walkSheet Big [a,b,c] = [harioFrames !! 4, harioFrames !! 5, harioFrames !! 6, harioFrames !! 5]
+            where harioFrames = getSmallHarioFrames b
+walkSheet Fire [a,b,c] = [harioFrames !! 4, harioFrames !! 5, harioFrames !! 6, harioFrames !! 5]
+            where harioFrames = getSmallHarioFrames c
 
-fallSheet :: PlayerPower -> IO [Picture]
-fallSheet Small = do
-                    harioFrames <- getSmallHarioFrames
-                    return [harioFrames !! 2]
-fallSheet Big = do
-                    harioFrames <- getHarioFrames
-                    return [harioFrames !! 2]
-fallSheet Fire = do
-                    harioFrames <- getFireHarioFrames
-                    return [harioFrames !! 2]
+swimSheet :: PlayerPower -> [BitmapData] -> [Picture]
+swimSheet Small [a,b,c] = [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
+                    where harioFrames = getSmallHarioFrames a
+swimSheet Big [a,b,c] = [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
+                    where harioFrames = getSmallHarioFrames b
+swimSheet Fire [a,b,c] = [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
+                    where harioFrames = getSmallHarioFrames c
+
+fallSheet :: PlayerPower -> [BitmapData] -> [Picture]
+fallSheet Small [a,b,c] = [harioFrames !! 2]
+                    where harioFrames = getSmallHarioFrames a
+fallSheet Big [a,b,c] = [harioFrames !! 2]
+                    where harioFrames = getSmallHarioFrames b
+fallSheet Fire [a,b,c] = [harioFrames !! 2]
+                    where harioFrames = getSmallHarioFrames c
 
 -- fire hario only
-fireShootSheet :: IO [Picture]
-fireShootSheet = do
-                    harioFrames <- getFireHarioFrames
-                    return [harioFrames !! 15]
+fireShootSheet :: [BitmapData] -> [Picture]
+fireShootSheet [a,b,c] = [harioFrames !! 15]
+                    where harioFrames = getFireHarioFrames c
 
-fireShootMoveSheet :: IO [Picture]
-fireShootMoveSheet = do
-                    harioFrames <- getFireHarioFrames
-                    return [harioFrames !! 1, harioFrames !! 15, harioFrames !! 18, harioFrames !! 19, harioFrames !! 16, harioFrames !! 17, harioFrames !! 18]
+fireShootMoveSheet :: [BitmapData] -> [Picture]
+fireShootMoveSheet [a,b,c]= [harioFrames !! 1, harioFrames !! 15, harioFrames !! 18, harioFrames !! 19, harioFrames !! 16, harioFrames !! 17, harioFrames !! 18]
+                where harioFrames = getFireHarioFrames c
 
 -- enemies
 
@@ -176,75 +149,75 @@ fireShootMoveSheet = do
 
 -- actual animations to be called.
 -- hario power, eT, speed, to animations
-harioIdleAnimation :: PlayerPower -> Float -> Float -> IO Picture
-harioIdleAnimation p eT s = do
-                                harioSheet <- idleSheet p
+harioIdleAnimation :: PlayerPower -> Float -> Float -> [BitmapData] -> Picture
+harioIdleAnimation p eT s b = do
+                                let harioSheet = idleSheet p b
                                 if p == Small
-                                    then return (animationLoop eT (1/s) harioSheet)
-                                    else return (animationLoop eT (0.5/s) harioSheet)
+                                    then animationLoop eT (1/s) harioSheet
+                                    else animationLoop eT (0.5/s) harioSheet
 
-harioJumpAnimation :: PlayerPower -> Float -> Float -> IO Picture
-harioJumpAnimation p eT s = do
-                                harioSheet <- jumpSheet p
+harioJumpAnimation :: PlayerPower -> Float -> Float -> [BitmapData] -> Picture
+harioJumpAnimation p eT s b = do
+                                let harioSheet = jumpSheet p b
                                 if p == Small
-                                    then return (animationLoop eT (1/s) harioSheet)
-                                    else return (animationLoop eT (0.5/s) harioSheet)
+                                    then animationLoop eT (1/s) harioSheet
+                                    else animationLoop eT (0.5/s) harioSheet
 
-harioSquatAnimation :: PlayerPower -> Float -> Float -> IO Picture
-harioSquatAnimation p eT s = do
-                                harioSheet <- squatSheet p
+harioSquatAnimation :: PlayerPower -> Float -> Float -> [BitmapData] -> Picture
+harioSquatAnimation p eT s b = do
+                                let harioSheet = squatSheet p b
                                 if p == Small
-                                    then return (animationLoop eT (1/s) harioSheet)
-                                    else return (animationLoop eT (0.5/s) harioSheet)
+                                    then animationLoop eT (1/s) harioSheet
+                                    else animationLoop eT (0.5/s) harioSheet
 
-harioWalkAnimation :: PlayerPower -> Float -> Float -> IO Picture
-harioWalkAnimation p eT s = do
-                                harioSheet <- walkSheet p
+harioWalkAnimation :: PlayerPower -> Float -> Float -> [BitmapData] -> Picture
+harioWalkAnimation p eT s b = do
+                                let harioSheet = walkSheet p b
                                 if p == Small
-                                    then return (animationLoop eT (1/s) harioSheet)
-                                    else return (animationLoop eT (0.5/s) harioSheet)
+                                    then animationLoop eT (1/s) harioSheet
+                                    else animationLoop eT (0.5/s) harioSheet
 
-harioSwimAnimation :: PlayerPower -> Float -> Float -> IO Picture
-harioSwimAnimation p eT s = do
-                                harioSheet <- swimSheet p
+harioSwimAnimation :: PlayerPower -> Float -> Float -> [BitmapData] -> Picture
+harioSwimAnimation p eT s b = do
+                                let harioSheet = swimSheet p b
                                 if p == Small
-                                    then return (animationLoop eT (1/s) harioSheet)
-                                    else return (animationLoop eT (0.5/s) harioSheet)
+                                    then animationLoop eT (1/s) harioSheet
+                                    else animationLoop eT (0.5/s) harioSheet
 
-harioFallAnimation :: PlayerPower -> Float -> Float -> IO Picture
-harioFallAnimation p eT s = do
-                                harioSheet <- fallSheet p
+harioFallAnimation :: PlayerPower -> Float -> Float -> [BitmapData] -> Picture
+harioFallAnimation p eT s b = do
+                                let harioSheet = fallSheet p b
                                 if p == Small
-                                    then return (animationLoop eT (1/s) harioSheet)
-                                    else return (animationLoop eT (0.5/s) harioSheet)
+                                    then animationLoop eT (1/s) harioSheet
+                                    else animationLoop eT (0.5/s) harioSheet
 
 
-animateHario :: Hario -> Float -> IO Picture
-animateHario p@(Hario (x,y) _ _ _ _ _) t = case state p of
+animateHario :: Hario -> Float -> [BitmapData] -> Picture
+animateHario p@(Hario (x,y) _ _ _ _ _) t b = case state p of
                         Idle -> do
-                                    animation <- harioIdleAnimation (power p) t (fst (velocity p)*10)
-                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
-                                    else return (translate x y animation)
+                                    let animation = harioIdleAnimation (power p) t (fst (velocity p)*10) b
+                                    if direction p == Left then translate x y (scale (-1) 1 animation)
+                                    else translate x y animation
                         Walk -> do
-                                    animation <- harioWalkAnimation (power p) t (fst (velocity p)*10)
-                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
-                                    else return (translate x y animation)
+                                    let animation = harioWalkAnimation (power p) t (fst (velocity p)*10) b
+                                    if direction p == Left then translate x y (scale (-1) 1 animation)
+                                    else translate x y animation
                         Jump -> do
-                                    animation <- harioJumpAnimation (power p) t (fst (velocity p)*10)
-                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
-                                    else return (translate x y animation)
+                                    let animation = harioJumpAnimation (power p) t (fst (velocity p)*10) b
+                                    if direction p == Left then translate x y (scale (-1) 1 animation)
+                                    else translate x y animation
                         Fall -> do
-                                    animation <- harioFallAnimation (power p) t (fst (velocity p)*10)
-                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
-                                    else return (translate x y animation)
+                                    let animation = harioFallAnimation (power p) t (fst (velocity p)*10) b
+                                    if direction p == Left then translate x y (scale (-1) 1 animation)
+                                    else translate x y animation
                         Die -> do
-                                    animation <- harioSquatAnimation (power p) t (fst (velocity p)*10)
-                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
-                                    else return (translate x y animation)
+                                    let animation = harioSquatAnimation (power p) t (fst (velocity p)*10) b
+                                    if direction p == Left then translate x y (scale (-1) 1 animation)
+                                    else translate x y animation
                         Swim -> do
-                                    animation <- harioSwimAnimation (power p) t (fst (velocity p)*10)
-                                    if direction p == Left then return (translate x y (scale (-1) 1 animation))
-                                    else return (translate x y animation)
+                                    let animation = harioSwimAnimation (power p) t (fst (velocity p)*10) b
+                                    if direction p == Left then translate x y (scale (-1) 1 animation)
+                                    else translate x y animation
 -- | 270x-35px for normal hario
 -- | 360x-71px from (0, -35) for fire hario
 -- | 251x-89px from (0, -71) for small hario

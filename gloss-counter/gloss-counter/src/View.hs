@@ -12,6 +12,7 @@ import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Game ( Point, Key (MouseButton), MouseButton (LeftButton) )
 import UI (UIElement(Button), getUIElemtpic)
 import Fileload
+import Data.Map
 
 fps :: Int
 fps = 60
@@ -22,52 +23,52 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp _ _)  = loadUI g
 view g@(LevelSelectState k t mp _ _)  = loadUI g
-view g@(LevelPlayingState k t l _) = do
+view g@(LevelPlayingState k t l a) = do
                                     level <- l
-                                    pic <- showLevel level t
+                                    pic <- showLevel level t a
                                     return (pictures [pic, testTime t])
 
 
-showLevel :: Level -> Float -> IO Picture
-showLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT = do
+showLevel :: Level -> Float -> Map String BitmapData -> IO Picture
+showLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT a = do
     let check c = case c of
-            W i -> Just(W i)
+            W i -> Just (W i)
             C   -> Just C
-            Q i -> Just(Q i)
-            X i -> Just(X i)
-            I i -> Just(I i)
+            Q i -> Just (Q i)
+            X i -> Just (X i)
+            I i -> Just (I i)
             c -> Nothing
-        checkline xp yp l = case l of
+        checkline xp yp l i = case l of
                 [] -> []
                 (x:xs) -> let t = check x in
                     case t of
-                        Just t -> fmap (translate (8+(16*xp)) (-8+(-16*yp))) (showField t eT) : checkline (xp+1) yp xs
-                        Nothing -> checkline (xp+1) yp xs
-        checkgrid yp g = case g of
+                        Just t -> translate (8+(16*xp)) (-8+(-16*yp)) (showField t eT i) : checkline (xp+1) yp xs i
+                        Nothing -> checkline (xp+1) yp xs i
+        checkgrid yp g i = case g of
                 [] -> []
-                (y:ys) -> checkline 0 yp y ++ checkgrid (yp+1) ys
+                (y:ys) -> checkline 0 yp y i ++ checkgrid (yp+1) ys i
     w <- pure wio
-    tilefP <- sequenceA (checkgrid 0 w)
-    harioanimation <- animateHario h eT
+    let tilefP = checkgrid 0 w [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"harioAnimationSheetBmp"]
+    let harioanimation = animateHario h eT [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp"]
     let fP = tilefP ++ [harioanimation]
     return (translate (-400) 0 (pictures fP))
 
-showField:: Field -> Float -> IO Picture
-showField f t = do
+showField:: Field -> Float -> [BitmapData] -> Picture
+showField f t [a,b,c,d,e] =
         let getBmpIO fi = case fi of
-                W i -> fmap head getTilesBmp
-                C   -> getCoinsBmp
-                Q i -> fmap (!! 1) getTilesBmp
-                X i -> getFlagBmp
-                I i -> getPipeBmp
+                W i -> a
+                C   -> b
+                Q i -> c
+                X i -> d
+                I i -> e
             getPicture fii ti = case fii of
-                W i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 190) (getBmpIO fii)
-                Q i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 16) (getBmpIO fii)
-                X i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 48) (getBmpIO fii)
-                I i -> fmap ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 192) (getBmpIO fii)
-                C   -> fmap (animationLoop ti 0.2 . makeListofSheet2 (Rectangle (0,-1) (16,-16)) 48) (getBmpIO fii)
-                fii -> fmap bitmap (getBmpIO f)
-        getPicture f t
+                W i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 190) (getBmpIO fii)
+                Q i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 16) (getBmpIO fii)
+                X i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 48) (getBmpIO fii)
+                I i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 192) (getBmpIO fii)
+                C   -> (animationLoop ti 0.2 . makeListofSheet2 (Rectangle (0,-1) (16,-16)) 48) (getBmpIO fii)
+                fii -> bitmap (getBmpIO f)
+        in getPicture f t
 
 cameraTranspose:: Point -> Picture -> Picture
 cameraTranspose (x,y) = translate (-16*x) (-16*y)
@@ -75,11 +76,11 @@ cameraTranspose (x,y) = translate (-16*x) (-16*y)
 
 
 loadUI:: GameState -> IO Picture
-loadUI (StartScreenState _ _ _ ui _) = pictures . map getUIElemtpic <$> ui
+loadUI (StartScreenState _ _ _ ui _) = pictures . Prelude.map getUIElemtpic <$> ui
 
-testShow :: Float -> Level -> IO Picture
-testShow t l = do
-                animation <- animateHario (player l) t
+testShow :: Float -> Level -> Map String BitmapData -> IO Picture
+testShow t l a = do
+                let animation = animateHario (player l) t [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp"]
                 return (scale 3 3 animation)
 
 testMP :: IO (Float,Float) -> IO Picture

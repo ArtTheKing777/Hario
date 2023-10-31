@@ -146,6 +146,8 @@ createGrid cg = do
             (y:ys) -> charline y : chargrid ys
     return (chargrid cg)
 
+
+
 -- enemy update functions
 
 genericEnemyUpdate :: Float -> Enemy -> Enemy

@@ -20,9 +20,15 @@ main = do
     --get all the frames and load them once here because haskell
     harioBmp <- getHarioBmp
     harioAnimationSheetBmp <- getHarioAnimationSheetBmp
+    fireHarioAnimationSheetBmp <- getFireHarioAnimationSheetBmp
+    smallHarioAnimationSheetBmp <- getSmallHarioAnimationSheetBmp
+    
 
 
-    let loadedAnimations = fromList [ ("harioBmp",harioBmp),("harioAnimationSheetBmp",harioAnimationSheetBmp)]
+    let loadedAnimations = fromList [ ("harioBmp",harioBmp),
+            ("harioAnimationSheetBmp",harioAnimationSheetBmp),
+            ("smallHarioAnimationSheetBmp",smallHarioAnimationSheetBmp),
+            ("fireHarioAnimationSheetBmp",fireHarioAnimationSheetBmp)]
 
     playIO (InWindow "window" (800,450) (0, 0)) -- Or FullScreen
               (makeColorI 135 206 235 255)          -- Background color
