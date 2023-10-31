@@ -20,9 +20,9 @@ harioSpeed :: Float
 harioSpeed = 10
 
 view :: GameState -> IO Picture
-view g@(StartScreenState k t mp _)  = loadUI g
-view g@(LevelSelectState k t mp _)  = loadUI g
-view g@(LevelPlayingState k t l) = do
+view g@(StartScreenState k t mp _ _)  = loadUI g
+view g@(LevelSelectState k t mp _ _)  = loadUI g
+view g@(LevelPlayingState k t l _) = do
                                     level <- l
                                     showLevel level t
 
@@ -74,7 +74,7 @@ cameraTranspose (x,y) = translate (-16*x) (-16*y)
 
 
 loadUI:: GameState -> IO Picture
-loadUI (StartScreenState _ _ _ ui) = pictures . map getUIElemtpic <$> ui
+loadUI (StartScreenState _ _ _ ui _) = pictures . map getUIElemtpic <$> ui
 
 testShow :: Float -> Level -> IO Picture
 testShow t l = do

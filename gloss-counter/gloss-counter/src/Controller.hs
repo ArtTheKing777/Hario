@@ -48,6 +48,7 @@ buttonPressedActions:: String -> GameState -> GameState
 buttonPressedActions b s = case b of
     "start" -> initialLevelSelectState
     "1" -> initialLevelPlayingState b
+    "2" -> initialLevelPlayingState b
     b -> s
 
 -- | Handle one iteration of the game | eT = elaspsedTme

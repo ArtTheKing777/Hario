@@ -2,31 +2,34 @@
 --   which represent the state of the game
 module Model where
 import UI
-import Graphics.Gloss.Interface.IO.Game ( Point, Key, black, red, Vector)
+import Graphics.Gloss.Interface.IO.Game ( Point, Key, black, red, Vector, Picture)
 import qualified Data.Set as S
 import Prelude hiding (Left, Right)
 import Fileload (getHarioBmp, getLevel)
 import Data.Maybe (isJust)
+import Data.Map
+import Graphics.Gloss (BitmapData)
 
-data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement]}
-              | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement]}
+data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData}
+              | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData}
               | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float, 
-                                    level::IO Level}
+                                    level::IO Level,loadedAnimations::Map String BitmapData}
 
-initialState :: GameState
+initialState :: Map String BitmapData -> GameState
 initialState = initialStartScreenState
 
-initialStartScreenState:: GameState
+initialStartScreenState:: Map String BitmapData -> GameState
 initialStartScreenState = StartScreenState S.empty 0 (0,0) 
  (  addUIElement (somethingElse getHarioBmp (0.5,0.5) (0,0)) $ 
     addUIElement (button "start" (0.3,0.3) (0,-150) red) (pure []))
 
-initialLevelSelectState:: GameState
+initialLevelSelectState:: Map String BitmapData -> GameState
 initialLevelSelectState = StartScreenState S.empty 0 (0,0) 
- (addUIElement (button "1" (0.3,0.3) (0,-150) red) (pure []))
+    (   addUIElement (button "2" (0.3,0.3) (0,150) red) $
+        addUIElement (button "1" (0.3,0.3) (0,-150) red) (pure []))
 
-initialLevelPlayingState:: String -> GameState
-initialLevelPlayingState s = LevelPlayingState S.empty 0 (createLevel s)
+initialLevelPlayingState:: Map String BitmapData -> String -> GameState
+initialLevelPlayingState m s = LevelPlayingState S.empty 0 (createLevel s) m
 
     --LevelPlayingState S.empty 0 (Level (Hario(0, 0) Walk Small Left 10) [] [[]])
 --initialState = LevelPlayingState S.empty 0 (Level (Hario(0, 0) Idle Small Left (0,0) True) [] [[]])
@@ -79,7 +82,7 @@ createLevel s = do
                     grid <- createGrid sGrid
                     harioPos <- findHarioPos grid
                     enemyPos <- findEnemyPos grid
-                    return (Level (Hario harioPos Idle Small Right (0,0) True) enemyPos grid)
+                    return (Level (Hario harioPos Idle Small Right (0,0) True) enemyPos grid )
 
 findHarioPos:: [[Field]] -> IO Point
 findHarioPos gIO = do 
