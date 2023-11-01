@@ -11,27 +11,27 @@ import Data.Map
 import Graphics.Gloss (BitmapData)
 import Control.Monad.State
 
-data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData}
-              | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData}
-              | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float, 
-                                    level::IO Level,loadedAnimations::Map String BitmapData}
+data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
+              | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
+              | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float,
+                                    level::Level,loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
 
-initialState :: Map String BitmapData -> GameState
+initialState :: Map String BitmapData -> [[[Char]]] -> GameState
 initialState = initialStartScreenState
 
 
-initialStartScreenState:: Map String BitmapData -> GameState
-initialStartScreenState = StartScreenState S.empty 0 (0,0) 
- (  addUIElement (somethingElse getHarioBmp (0.5,0.5) (0,0)) $ 
+initialStartScreenState:: Map String BitmapData -> [[[Char]]] -> GameState
+initialStartScreenState = StartScreenState S.empty 0 (0,0)
+ (  addUIElement (somethingElse getHarioBmp (0.5,0.5) (0,0)) $
     addUIElement (button "start" (0.3,0.3) (0,-150) red) (pure []))
 
-initialLevelSelectState:: Map String BitmapData -> GameState
-initialLevelSelectState = StartScreenState S.empty 0 (0,0) 
+initialLevelSelectState:: Map String BitmapData -> [[[Char]]] -> GameState
+initialLevelSelectState = StartScreenState S.empty 0 (0,0)
     (   addUIElement (button "2" (0.3,0.3) (0,150) red) $
         addUIElement (button "1" (0.3,0.3) (0,-150) red) (pure []))
 
-initialLevelPlayingState:: Map String BitmapData -> String -> GameState
-initialLevelPlayingState m s = LevelPlayingState S.empty 0 (createLevel s) m
+initialLevelPlayingState:: Map String BitmapData -> [[[Char]]] -> Int -> GameState
+initialLevelPlayingState m l i = LevelPlayingState S.empty 0 (createLevel (l!!(i-1))) m l
 
     --LevelPlayingState S.empty 0 (Level (Hario(0, 0) Walk Small Left 10) [] [[]])
 --initialState = LevelPlayingState S.empty 0 (Level (Hario(0, 0) Idle Small Left (0,0) True) [] [[]])
@@ -50,7 +50,7 @@ data PlayerPower = Small | Big | Fire
 
 data Hario = Hario { hpos::Point, state::PlayerState,
                      power::PlayerPower, direction::Looking, velocity::Vector, onground::Bool}
-data EnemyType = Hoomba | HoopaTroopa | HoopaParaTroopa | Hirrana | RedHirrana | HeepHeep | Hloober | Hakitu | Hiny | HuzzyBeetle | HoolitBill 
+data EnemyType = Hoomba | HoopaTroopa | HoopaParaTroopa | Hirrana | RedHirrana | HeepHeep | Hloober | Hakitu | Hiny | HuzzyBeetle | HoolitBill
                         | HammerBrother | Worm | Howser | HoopaShell | HireBall | Hacid | Hammer  | HakituProjectile
 
 data EnemyState = Alive | Dead
@@ -78,51 +78,50 @@ addUIElement e l = do
                     return (uies ++ [uie])
 
 
-createLevel::String -> IO Level
+createLevel::[[Char]] -> Level
 createLevel s = do
-                    sGrid <- getLevel s
-                    grid <- createGrid sGrid
-                    harioPos <- findHarioPos grid
-                    enemyPos <- findEnemyPos grid
-                    return (Level (Hario harioPos Idle Small Right (0,0) True) enemyPos grid )
+                    let grid = createGrid s
+                        harioPos = findHarioPos grid
+                        enemyPos = findEnemyPos grid
+                    Level (Hario harioPos Idle Small Right (0,0) True) enemyPos grid
 
-findHarioPos:: [[Field]] -> IO Point
-findHarioPos gIO = do 
-    g <- pure gIO
-    let check c = case c of
+findHarioPos:: [[Field]] -> Point
+findHarioPos gIO = do
+    let g = gIO
+        check c = case c of
             H -> True
             _ -> False
         checkline xp l = case l of
                 [] -> Nothing
-                (x:xs) -> if check x 
-                          then Just xp 
+                (x:xs) -> if check x
+                          then Just xp
                           else checkline (xp+1) xs
         checkgrid yp g = case g of
                 [] -> (0,0)
-                (y:ys) -> let xp = checkline 0 y in 
+                (y:ys) -> let xp = checkline 0 y in
                           case xp of
                           Just x -> (x,yp)
                           Nothing -> checkgrid (yp+1) ys
-    return (checkgrid 0 g)
+    checkgrid 0 g
 
-findEnemyPos:: [[Field]] -> IO [Enemy]
+findEnemyPos:: [[Field]] -> [Enemy]
 findEnemyPos gIO = do
-    g <- pure gIO
-    let check c = case c of
+    let g = gIO
+        check c = case c of
             E t -> Just t
             c -> Nothing
         checkline xp yp l = case l of
                 [] -> []
                 (x:xs) -> let t = check x in
                     case t of
-                        Just t -> Enemy (xp,yp) t Alive Right genericEnemyUpdate : checkline (xp+1) yp l 
+                        Just t -> Enemy (xp,yp) t Alive Right genericEnemyUpdate : checkline (xp+1) yp l
                         Nothing -> checkline (xp+1) yp xs
         checkgrid ypg gi = case gi of
                 [] -> []
                 (y:ys) -> checkline 0 ypg y ++ checkgrid (ypg+1) ys
-    return (checkgrid 0 g)
+    checkgrid 0 g
 
-createGrid::[[Char]] -> IO WorldGrid
+createGrid::[[Char]] -> WorldGrid
 createGrid cg = do
     let char c = case c of
             '#' -> W 4
@@ -144,7 +143,7 @@ createGrid cg = do
         chargrid cgr = case cgr of
             [] -> []
             (y:ys) -> charline y : chargrid ys
-    return (chargrid cg)
+    chargrid cg
 
 
 

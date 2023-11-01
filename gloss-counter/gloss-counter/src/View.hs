@@ -21,10 +21,10 @@ harioSpeed :: Float
 harioSpeed = 10
 
 view :: GameState -> IO Picture
-view g@(StartScreenState k t mp _ _)  = loadUI g
-view g@(LevelSelectState k t mp _ _)  = loadUI g
-view g@(LevelPlayingState k t l a) = do
-                                    level <- l
+view g@(StartScreenState k t mp _ _ _)  = loadUI g
+view g@(LevelSelectState k t mp _ _ _)  = loadUI g
+view g@(LevelPlayingState k t l a s) = do
+                                    let level = l
                                     pic <- showLevel level t a
                                     return (pictures [pic, testTime t])
 
@@ -48,7 +48,7 @@ showLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT a = do
                 [] -> []
                 (y:ys) -> checkline 0 yp y i ++ checkgrid (yp+1) ys i
     w <- pure wio
-    let tilefP = checkgrid 0 w [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"harioAnimationSheetBmp"]
+    let tilefP = checkgrid 0 w [a!"tilesBmp1",a!"coinsBmp",a!"tilesBmp2",a!"flagBmp",a!"pipeBmp"]
     let harioanimation = animateHario h eT [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp"]
     let fP = tilefP ++ [harioanimation]
     return (translate (-400) 0 (pictures fP))
@@ -76,7 +76,7 @@ cameraTranspose (x,y) = translate (-16*x) (-16*y)
 
 
 loadUI:: GameState -> IO Picture
-loadUI (StartScreenState _ _ _ ui _) = pictures . Prelude.map getUIElemtpic <$> ui
+loadUI (StartScreenState _ _ _ ui _ _) = pictures . Prelude.map getUIElemtpic <$> ui
 
 testShow :: Float -> Level -> Map String BitmapData -> IO Picture
 testShow t l a = do

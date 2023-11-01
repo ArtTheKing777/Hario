@@ -56,7 +56,7 @@ getWormBmp = do
 getAcidBmp :: IO [BitmapData]
 getAcidBmp = do
             acidmove <- loadBitmapData "media/enemies/Worm/AcidBlob-Move.bmp"
-            acidsplat <- loadBitmapData "media/enemies/Worm/AcitSplat.bmp"
+            acidsplat <- loadBitmapData "media/enemies/Worm/AcidSplat.bmp"
             return [acidmove, acidsplat]
 
 --load tiles
