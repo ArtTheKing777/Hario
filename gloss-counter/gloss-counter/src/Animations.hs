@@ -20,13 +20,13 @@ animationLoop eT tF p = p !! floor (mod' (eT/tF) (int2Float (length p)))
 
 --load frames as [Pictures]
 getHarioFrames :: BitmapData -> [Picture]
-getHarioFrames harioSheetBmp = makeListofSheet (Rectangle (0, -1) (17, -35)) harioSheetBmp (fst (bitmapSize harioSheetBmp))
+getHarioFrames harioSheetBmp = makeListofSheet (Rectangle (0, -1) (17, -34)) harioSheetBmp (fst (bitmapSize harioSheetBmp))
 
 getFireHarioFrames :: BitmapData -> [Picture]
-getFireHarioFrames fireHarioSheetBmp = makeListofSheet (Rectangle (0, -36) (17, -36)) fireHarioSheetBmp (fst (bitmapSize fireHarioSheetBmp))
+getFireHarioFrames fireHarioSheetBmp = makeListofSheet (Rectangle (0, -36) (17, -35)) fireHarioSheetBmp (fst (bitmapSize fireHarioSheetBmp))
 
 getSmallHarioFrames :: BitmapData -> [Picture]
-getSmallHarioFrames smallHarioSheetBmp = makeListofSheet (Rectangle (0, -72) (17, -18)) smallHarioSheetBmp (fst (bitmapSize smallHarioSheetBmp))
+getSmallHarioFrames smallHarioSheetBmp = makeListofSheet (Rectangle (0, -72) (17, -17)) smallHarioSheetBmp (fst (bitmapSize smallHarioSheetBmp))
 
 getHenemyFrames :: BitmapData -> [Picture]
 getHenemyFrames henemySheetBmp = makeListofSheet (Rectangle (0, -1) (17, -35)) henemySheetBmp (fst (bitmapSize henemySheetBmp))
