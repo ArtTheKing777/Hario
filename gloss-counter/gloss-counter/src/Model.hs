@@ -53,7 +53,7 @@ data Hario = Hario { hpos::Point, state::PlayerState,
 data EnemyType = Hoomba | HoopaTroopa | HoopaParaTroopa | Hirrana | RedHirrana | HeepHeep | Hloober | Hakitu | Hiny | HuzzyBeetle | HoolitBill
                         | HammerBrother | Worm | Howser | HoopaShell | HireBall | Hacid | Hammer  | HakituProjectile
 
-data EnemyState = Alive | Dead
+data EnemyState = EIdle | EWalk | EAttack | EDie | EDead
 
 data Enemy = Enemy { point::Point, etype::EnemyType, estate::EnemyState, edirection::Looking, eupdate::Float->Enemy->Enemy }
 
@@ -114,7 +114,7 @@ findEnemyPos gIO = do
                 [] -> []
                 (x:xs) -> let t = check x in
                     case t of
-                        Just t -> Enemy (xp,yp) t Alive Right genericEnemyUpdate : checkline (xp+1) yp l
+                        Just t -> Enemy (xp,yp) t EIdle Right genericEnemyUpdate : checkline (xp+1) yp l
                         Nothing -> checkline (xp+1) yp xs
         checkgrid ypg gi = case gi of
                 [] -> []

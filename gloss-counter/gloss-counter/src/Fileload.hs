@@ -81,6 +81,6 @@ getHoolitBillTowerBmp = loadBitmapData "media/tiles/bulletbilltower.bmp"
 
 getLevel :: String -> IO [[Char]]
 getLevel s = do
-    l <- readFile ("media/Levels/Level"++s++".txt")
+    l <- readFile ("media/levels/level"++s++".txt")
     return (lines l)
             

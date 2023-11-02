@@ -29,8 +29,6 @@ view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _) _ _) a s) = do
                                     showLevel level t a
                                     
                                     
-
-
 showLevel :: Level -> Float -> Map String BitmapData -> IO Picture
 showLevel l@(Level h@(Hario pio@(px,py) _ _ _ _ _) e wio) eT a = do
     let check c = case c of
@@ -52,7 +50,8 @@ showLevel l@(Level h@(Hario pio@(px,py) _ _ _ _ _) e wio) eT a = do
         w = wio
         tilefP = checkgrid 0 w [a!"tilesBmp1",a!"coinsBmp",a!"tilesBmp2",a!"flagBmp",a!"pipeBmp"]
         harioanimation = animateHario h eT [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp"]
-        fP = tilefP ++ [harioanimation]
+        enemiesanimation = Prelude.map (animateHenemy eT [a!"henemiesBmp", a!"howserBmp", a!"hammerBmp", a!"fireBmp", a!"acidBmpMove", a!"acidBmpSplat", a!"wormBmpMove", a!"wormBmpCharge", a!"wormBmpSpit"]) e
+        fP = tilefP ++ [harioanimation] ++ enemiesanimation
     return (cameraTranspose pio (1,1) w (pictures fP))
 
 showField:: Field -> Float -> [BitmapData] -> Picture
@@ -85,7 +84,8 @@ cameraTranspose (x,y) (zx,zy) g p = translate cx cy (scale zx zy p)
           cy | camBorderDownY <= downBorder = -downBorder-225
              | otherwise = -y
 
-
+showEnemies :: [Enemy] -> Float -> [Picture]
+showEnemies (x:xs) eT = undefined
 
 
 loadUI:: GameState -> IO Picture
