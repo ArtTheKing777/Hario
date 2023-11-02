@@ -83,7 +83,7 @@ createLevel s = do
                     let grid = createGrid s
                         harioPos = findHarioPos grid
                         enemyPos = findEnemyPos grid
-                    Level (Hario harioPos Idle Big Right (0,0) False) enemyPos grid
+                    Level (Hario harioPos Idle Small Right (0,0) False) enemyPos grid
 
 findHarioPos:: [[Field]] -> Point
 findHarioPos gIO = do
