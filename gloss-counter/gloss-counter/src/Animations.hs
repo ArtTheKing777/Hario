@@ -181,7 +181,6 @@ animateHenemy eT bmps e@(Enemy (x,y) t s l u) = do
                                                     if l == Left then translate x y (scale (-1) 1 hanimation)
                                                     else translate x y hanimation
 
-
 -- player animation sheets
 idleSheet :: PlayerPower -> [BitmapData] -> [Picture]
 idleSheet Small [a,b,c] = [head(getSmallHarioFrames a)]

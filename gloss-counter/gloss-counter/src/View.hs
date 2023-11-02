@@ -24,9 +24,11 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp _ _ _)  = loadUI g
 view g@(LevelSelectState k t mp _ _ _)  = loadUI g
-view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _) _ _) a s) = do
+view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _) e _) a s) = do
                                     let level = l
-                                    showLevel level t a
+                                    o <- showLevel level t a
+                                    p <- testMP (return(point (head e)))
+                                    return (pictures [o,p])
                                     
                                     
 showLevel :: Level -> Float -> Map String BitmapData -> IO Picture
@@ -83,10 +85,6 @@ cameraTranspose (x,y) (zx,zy) g p = translate cx cy (scale zx zy p)
              | otherwise = -x
           cy | camBorderDownY <= downBorder = -downBorder-225
              | otherwise = -y
-
-showEnemies :: [Enemy] -> Float -> [Picture]
-showEnemies (x:xs) eT = undefined
-
 
 loadUI:: GameState -> IO Picture
 loadUI (StartScreenState _ _ _ ui _ _) = pictures . Prelude.map getUIElemtpic <$> ui
