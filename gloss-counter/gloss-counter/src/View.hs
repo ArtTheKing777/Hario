@@ -1,3 +1,4 @@
+{-# LANGUAGE BlockArguments #-}
 -- | This module defines how to turn
 --   the game state into a picture
 module View where
@@ -23,14 +24,15 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp _ _ _)  = loadUI g
 view g@(LevelSelectState k t mp _ _ _)  = loadUI g
-view g@(LevelPlayingState k t l a s) = do
+view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _) _ _) a s) = do
                                     let level = l
-                                    pic <- showLevel level t a
-                                    return (pictures [pic, testTime t])
+                                    showLevel level t a
+                                    
+                                    
 
 
 showLevel :: Level -> Float -> Map String BitmapData -> IO Picture
-showLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT a = do
+showLevel l@(Level h@(Hario pio@(px,py) _ _ _ _ _) e wio) eT a = do
     let check c = case c of
             W i -> Just (W i)
             C   -> Just C
@@ -47,11 +49,11 @@ showLevel l@(Level h@(Hario pio _ _ _ _ _) e wio) eT a = do
         checkgrid yp g i = case g of
                 [] -> []
                 (y:ys) -> checkline 0 yp y i ++ checkgrid (yp+1) ys i
-    w <- pure wio
-    let tilefP = checkgrid 0 w [a!"tilesBmp1",a!"coinsBmp",a!"tilesBmp2",a!"flagBmp",a!"pipeBmp"]
-    let harioanimation = animateHario h eT [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp"]
-    let fP = tilefP ++ [harioanimation]
-    return (translate (-400) 0 (pictures fP))
+        w = wio
+        tilefP = checkgrid 0 w [a!"tilesBmp1",a!"coinsBmp",a!"tilesBmp2",a!"flagBmp",a!"pipeBmp"]
+        harioanimation = animateHario h eT [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp"]
+        fP = tilefP ++ [harioanimation]
+    return (cameraTranspose pio (1,1) w (pictures fP))
 
 showField:: Field -> Float -> [BitmapData] -> Picture
 showField f t [a,b,c,d,e] =
@@ -70,8 +72,19 @@ showField f t [a,b,c,d,e] =
                 fii -> bitmap (getBmpIO f)
         in getPicture f t
 
-cameraTranspose:: Point -> Picture -> Picture
-cameraTranspose (x,y) = translate (-16*x) (-16*y)
+cameraTranspose:: Point -> Point -> [[Field]] -> Picture -> Picture
+cameraTranspose (x,y) (zx,zy) g p = translate cx cy (scale zx zy p)
+    where camBorderLeftX = x-400
+          camBorderRightX = x+400
+          camBorderDownY = y-225
+          rightBorder = 16*fromIntegral(length (head g))
+          downBorder = -16*fromIntegral(length g)
+          cx | camBorderLeftX <= 0 = -400 
+             | camBorderRightX >= rightBorder = -rightBorder+400
+             | otherwise = -x
+          cy | camBorderDownY <= downBorder = -downBorder-225
+             | otherwise = -y
+
 
 
 

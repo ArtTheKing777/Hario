@@ -2,15 +2,14 @@ module Hario where
 import Model
 import View (harioSpeed)
 import Prelude hiding (Right, Left)
-import Graphics.Gloss (Vector)
+import Graphics.Gloss (Vector, Point)
 
 updateHario :: Hario -> Hario
 updateHario p@(Hario (x, y) s pow d v@(vx, vy) g) | g = Hario (x+vx, y+vy) s pow d v g
-                                                  | y <= 0 = Hario (x+vx, y+vy) s pow d (vx, 0) True
                                                   | otherwise = Hario (x+vx, y+vy) s pow d (gravity v) False
 
 gravity :: Vector -> Vector
-gravity (x,y) = (x,y-9.31)
+gravity (x,y) = (x,y-0.52)
 
 moveLeft :: Hario -> Hario
 moveLeft p@(Hario pos a pow dir (vx, vy) g)   | dir == Right = Hario pos Walk pow Left (-5, vy) g
@@ -23,6 +22,32 @@ moveRight p@(Hario pos a pow dir (vx, vy) g)  | dir == Left = Hario pos Walk pow
 idle :: Hario -> Hario
 idle p@(Hario (x,y) s pow dir (vx, vy) g) = Hario (x,y) Idle pow dir (0, vy) g
 
+getHarioSize :: Hario -> Point
+getHarioSize h@(Hario pos s Small d v g) = (15,15)
+getHarioSize h@(Hario pos s p d v g) = (15,33)
+
+getHarioHitBoxCorners :: Hario -> [Point]
+getHarioHitBoxCorners h@(Hario (x,y) s Small d v g) = [tl,tr,dl,dr]
+    where size = getHarioSize h
+          sizex = fst size
+          sizey = snd size
+          tl = (x-(sizex/2),y+(sizey/2))
+          tr = (x+(sizex/2),y+(sizey/2))
+          dl = (x-(sizex/2),y-(sizey/2))
+          dr = (x+(sizex/2),y-(sizey/2))
+getHarioHitBoxCorners h@(Hario (x,y) s _ d v g) = [tl,tr,dl,dr,lr,ll,rr,rl]
+    where size = getHarioSize h
+          sizex = fst size
+          sizey = snd size
+          tl = (x-(sizex/2),y+(sizey/2))
+          tr = (x+(sizex/2),y+(sizey/2))
+          dl = (x-(sizex/2),y-(sizey/2))
+          dr = (x+(sizex/2),y-(sizey/2))
+          lr = (x+(sizex/2),y-(sizey/4))
+          ll = (x-(sizex/2),y-(sizey/4))
+          rr = (x+(sizex/2),y+(sizey/4))
+          rl = (x-(sizex/2),y+(sizey/4))
+
 jump :: Hario -> Hario
 jump p@(Hario (x,y) s pow dir (vx, vy) g) | not g      = p 
-                                          | otherwise  = Hario (x,y) Jump pow dir (vx, 10) False
+                                          | otherwise  = Hario (x,y) Jump pow dir (vx,8.5) False

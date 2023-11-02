@@ -83,7 +83,7 @@ createLevel s = do
                     let grid = createGrid s
                         harioPos = findHarioPos grid
                         enemyPos = findEnemyPos grid
-                    Level (Hario harioPos Idle Small Right (0,0) True) enemyPos grid
+                    Level (Hario harioPos Idle Small Right (0,0) False) enemyPos grid
 
 findHarioPos:: [[Field]] -> Point
 findHarioPos gIO = do
@@ -100,7 +100,7 @@ findHarioPos gIO = do
                 [] -> (0,0)
                 (y:ys) -> let xp = checkline 0 y in
                           case xp of
-                          Just x -> (x,yp)
+                          Just x -> (4*16,-1*16)
                           Nothing -> checkgrid (yp+1) ys
     checkgrid 0 g
 
