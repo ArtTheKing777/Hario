@@ -97,42 +97,42 @@ jumpSheet Small [a,b,c] = [harioFrames !! 1, harioFrames !! 2]
                     where harioFrames = getSmallHarioFrames a
                     
 jumpSheet Big [a,b,c] = [harioFrames !! 1, harioFrames !! 2]
-                    where harioFrames = getSmallHarioFrames b
+                    where harioFrames = getHarioFrames b
 
 jumpSheet Fire [a,b,c] = [harioFrames !! 1, harioFrames !! 2]
-                    where harioFrames = getSmallHarioFrames c
+                    where harioFrames = getFireHarioFrames c
 
 squatSheet :: PlayerPower -> [BitmapData] -> [Picture]
 squatSheet Small [a,b,c] = [harioFrames !! 3]
                     where harioFrames = getSmallHarioFrames a
 squatSheet Big [a,b,c] = [harioFrames !! 3]
-                    where harioFrames = getSmallHarioFrames b
+                    where harioFrames = getHarioFrames b
 squatSheet Fire [a,b,c] = [harioFrames !! 3]
-                    where harioFrames = getSmallHarioFrames c
+                    where harioFrames = getFireHarioFrames c
 
 walkSheet :: PlayerPower -> [BitmapData] -> [Picture]
 walkSheet Small [a,b,c] = [harioFrames !! 4, harioFrames !! 5, harioFrames !! 6, harioFrames !! 5]
             where harioFrames = getSmallHarioFrames a
 walkSheet Big [a,b,c] = [harioFrames !! 4, harioFrames !! 5, harioFrames !! 6, harioFrames !! 5]
-            where harioFrames = getSmallHarioFrames b
+            where harioFrames = getHarioFrames b
 walkSheet Fire [a,b,c] = [harioFrames !! 4, harioFrames !! 5, harioFrames !! 6, harioFrames !! 5]
-            where harioFrames = getSmallHarioFrames c
+            where harioFrames = getFireHarioFrames c
 
 swimSheet :: PlayerPower -> [BitmapData] -> [Picture]
 swimSheet Small [a,b,c] = [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
                     where harioFrames = getSmallHarioFrames a
 swimSheet Big [a,b,c] = [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
-                    where harioFrames = getSmallHarioFrames b
+                    where harioFrames = getHarioFrames b
 swimSheet Fire [a,b,c] = [harioFrames !! 8, harioFrames !! 9, harioFrames !! 10, harioFrames !! 12, harioFrames !! 13, harioFrames !! 14, harioFrames !! 7]
-                    where harioFrames = getSmallHarioFrames c
+                    where harioFrames = getFireHarioFrames c
 
 fallSheet :: PlayerPower -> [BitmapData] -> [Picture]
 fallSheet Small [a,b,c] = [harioFrames !! 2]
                     where harioFrames = getSmallHarioFrames a
 fallSheet Big [a,b,c] = [harioFrames !! 2]
-                    where harioFrames = getSmallHarioFrames b
+                    where harioFrames = getHarioFrames b
 fallSheet Fire [a,b,c] = [harioFrames !! 2]
-                    where harioFrames = getSmallHarioFrames c
+                    where harioFrames = getFireHarioFrames c
 
 -- fire hario only
 fireShootSheet :: [BitmapData] -> [Picture]
