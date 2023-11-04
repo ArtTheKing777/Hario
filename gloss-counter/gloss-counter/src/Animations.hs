@@ -46,7 +46,7 @@ getWormFrames wormframesbmps = scaledwormframes
                             where wormframes = makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 0) (fst (bitmapSize (wormframesbmps !! 0))) ++
                                         makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 1) (fst (bitmapSize (wormframesbmps !! 1))) ++
                                         [bitmap (wormframesbmps !! 2)]
-                                  scaledwormframes = map (scale 0.22 0.22) wormframes
+                                  scaledwormframes = map (scale 0.45 0.45) wormframes
 
 getHowserFrames :: BitmapData -> [Picture]
 getHowserFrames howserSheetBmp = makeListofSheet (Rectangle (0, -1) (35, -35)) howserSheetBmp (fst (bitmapSize howserSheetBmp))
@@ -178,8 +178,8 @@ animateHenemy :: Float -> [BitmapData] -> Enemy ->  Picture
 animateHenemy eT bmps e@(Enemy (x,y) t s l u) = do
                                                     let hframes = getEnemyFrames t bmps s
                                                     let hanimation = animationLoop eT (1/10) hframes
-                                                    if l == Left then translate x y (scale (-1) 1 hanimation)
-                                                    else translate x y hanimation
+                                                    if l == Left then translate (8+(16*x)) (-16*y) (scale (-1) 1 hanimation)
+                                                    else translate (8+(16*x)) (-16*y) hanimation
 
 -- player animation sheets
 idleSheet :: PlayerPower -> [BitmapData] -> [Picture]

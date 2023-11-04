@@ -24,11 +24,7 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp _ _ _)  = loadUI g
 view g@(LevelSelectState k t mp _ _ _)  = loadUI g
-view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _) e _) a s) = do
-                                    let level = l
-                                    o <- showLevel level t a
-                                    p <- testMP (return(point (head e)))
-                                    return (pictures [o,p])
+view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _) e _) a s) = showLevel l t a
                                     
                                     
 showLevel :: Level -> Float -> Map String BitmapData -> IO Picture

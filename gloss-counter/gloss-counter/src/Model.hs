@@ -105,21 +105,20 @@ findHarioPos gIO = do
     checkgrid 0 g
 
 findEnemyPos:: [[Field]] -> [Enemy]
-findEnemyPos gIO = do
-    let g = gIO
-        check c = case c of
-            E t -> Just t
-            c -> Nothing
-        checkline xp yp l = case l of
+findEnemyPos g = do
+        let check c = case c of
+                E t -> Just t
+                c -> Nothing
+            checkline xp yp l = case l of
                 [] -> []
                 (x:xs) -> let t = check x in
                     case t of
-                        Just t -> Enemy (xp,yp) t EIdle Right genericEnemyUpdate : checkline (xp+1) yp l
+                        Just t -> Enemy (xp,yp) t EIdle Right genericEnemyUpdate : checkline (xp+1) yp xs
                         Nothing -> checkline (xp+1) yp xs
-        checkgrid ypg gi = case gi of
+            checkgrid ypg gi = case gi of
                 [] -> []
                 (y:ys) -> checkline 0 ypg y ++ checkgrid (ypg+1) ys
-    checkgrid 0 g
+        checkgrid 0 g
 
 createGrid::[[Char]] -> WorldGrid
 createGrid cg = do
