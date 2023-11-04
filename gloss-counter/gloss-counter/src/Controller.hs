@@ -76,7 +76,7 @@ updateLevelState eT (LevelPlayingState k t l a s) = do
                                                         in return (LevelPlayingState (keysupdate k) (eT+t) combine a s)
 
 update' :: Float -> Level -> (Hario -> Hario) -> Level
-update' eT l@(Level p e g) m = Level (updateHario $ tileCollisionCheck g $ setHarioGrounded g $ m $ player l) e g
+update' eT l@(Level p e g) m = Level (updateHario $ tileCollisionCheck g $ setHarioGrounded g $ m $ player l) (map (enemyUpdate eT g) e) g
 
 setHarioGrounded::WorldGrid -> Hario -> Hario
 setHarioGrounded w h@(Hario (x,y) s p k l m) = Hario (x,y) s p k l (harioGrounded w h)
@@ -102,8 +102,6 @@ harioGrounded w h@(Hario (x,y) s p k l m) | let
     in any (fieldSolid . pointtofield) (pointToCheck (x,y) p) = True
     | otherwise = False
     
-    
-
 tileCollisionCheck:: WorldGrid -> Hario -> Hario
 tileCollisionCheck w h@(Hario pos s p d (0,0) g) = h
 tileCollisionCheck w h@(Hario pos@(x,y) s p d (vx,vy) g) 
@@ -128,8 +126,8 @@ tileCollisionCheck w h@(Hario pos@(x,y) s p d (vx,vy) g)
         ar = fieldSolid (pointtofield (x+8,snd (last corners)+2)) || fieldSolid (pointtofield (x+8,snd (head corners))) 
             && not(fieldSolid (pointtofield (x+7.5,snd (head corners))))
         pointtofield (px,py) | px<0 || px>rightBorder || py<=downBorder = W 0
-                         | py>0 = A
-                         | otherwise = (w!!cordToInt (-py))!!cordToInt px
+                             | py>0 = A
+                             | otherwise = (w!!cordToInt (-py))!!cordToInt px
         collidingFieldsl = map pointtofield (take (div (length corners) 2) corners)
         collidingFieldsr = map pointtofield (drop (div (length corners) 2) corners)
         collidingFields = map pointtofield corners
@@ -140,8 +138,6 @@ tileCollisionCheck w h@(Hario pos@(x,y) s p d (vx,vy) g)
             H -> False
             E _ -> False
             _ -> True
-
-
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState

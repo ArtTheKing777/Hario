@@ -27,6 +27,7 @@ main = do
     howserBmp <- getHowserBmp
     hammerBmp <- getHammerBmp
     fireBmp <- getFireBmp
+    fireballBmp <- getFireBallBmp
     wormBmp <- getWormBmp
     acidBmp <- getAcidBmp
     tilesBmp <- getTilesBmp
@@ -47,6 +48,7 @@ main = do
             ("howserBmp", howserBmp),
             ("hammerBmp",hammerBmp),
             ("fireBmp",fireBmp),
+            ("fireballBmp", fireballBmp),
             ("wormBmpMove",head wormBmp),
             ("wormBmpSpit",wormBmp!!1),
             ("wormBmpCharge",wormBmp!!2),

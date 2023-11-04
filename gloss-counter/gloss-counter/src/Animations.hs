@@ -33,7 +33,7 @@ getHammerFrames :: BitmapData -> [Picture]
 getHammerFrames hammersheetbmp = makeListofSheet (Rectangle (0, -1) (22, -17)) hammersheetbmp (fst (bitmapSize hammersheetbmp))
 
 getHireBallFrames :: BitmapData -> [Picture]
-getHireBallFrames hireballsheetbmp = makeListofSheet (Rectangle (0, -1) (44, -17)) hireballsheetbmp (fst (bitmapSize hireballsheetbmp))
+getHireBallFrames hireballsheetbmp = makeListofSheet (Rectangle (0, -1) (8, -8)) hireballsheetbmp (fst (bitmapSize hireballsheetbmp))
 
 getAcidFrames :: [BitmapData] -> [Picture]
 getAcidFrames acidframesbmps = scaledacidframes
@@ -175,9 +175,9 @@ getEnemyFrames e henemyBmp s = case e of
                                         wormFrames = getWormFrames [henemyBmp !! 6, henemyBmp !! 7, henemyBmp !! 8]
 
 animateHenemy :: Float -> [BitmapData] -> Enemy ->  Picture
-animateHenemy eT bmps e@(Enemy (x,y) t s l u) = do
+animateHenemy eT bmps e@(Enemy (x,y) t s l) = do
                                                     let hframes = getEnemyFrames t bmps s
-                                                    let hanimation = animationLoop eT (1/10) hframes
+                                                    let hanimation = animationLoop eT (1/2) hframes
                                                     if l == Left then translate (8+(16*x)) (-16*y) (scale (-1) 1 hanimation)
                                                     else translate (8+(16*x)) (-16*y) hanimation
 

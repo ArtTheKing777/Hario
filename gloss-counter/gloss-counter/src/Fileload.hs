@@ -46,6 +46,9 @@ getHammerBmp = loadBitmapData "media/enemies/hammer.bmp"
 getFireBmp :: IO BitmapData
 getFireBmp = loadBitmapData "media/enemies/fire.bmp"
 
+getFireBallBmp :: IO BitmapData
+getFireBallBmp = loadBitmapData "media/enemies/fireball.bmp"
+
 getWormBmp :: IO [BitmapData]
 getWormBmp = do
                 move <- loadBitmapData "media/enemies/Worm/Maggot-Move.bmp" 

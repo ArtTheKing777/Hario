@@ -55,7 +55,7 @@ data EnemyType = Hoomba | HoopaTroopa | HoopaParaTroopa | Hirrana | RedHirrana |
 
 data EnemyState = EIdle | EWalk | EAttack | EDie | EDead
 
-data Enemy = Enemy { point::Point, etype::EnemyType, estate::EnemyState, edirection::Looking, eupdate::Float->Enemy->Enemy }
+data Enemy = Enemy { point::Point, etype::EnemyType, estate::EnemyState, edirection::Looking}
 
 data Field = W Int -- Wall
             |A -- Air
@@ -113,7 +113,7 @@ findEnemyPos g = do
                 [] -> []
                 (x:xs) -> let t = check x in
                     case t of
-                        Just t -> Enemy (xp,yp) t EIdle Right genericEnemyUpdate : checkline (xp+1) yp xs
+                        Just t -> Enemy (xp,yp) t EWalk Right : checkline (xp+1) yp xs
                         Nothing -> checkline (xp+1) yp xs
             checkgrid ypg gi = case gi of
                 [] -> []
@@ -144,9 +144,68 @@ createGrid cg = do
             (y:ys) -> charline y : chargrid ys
     chargrid cg
 
+-- enemy functions
 
-
--- enemy update functions
+getEnemySize :: Enemy -> Point
+getEnemySize (Enemy _ Hoomba _ _) = (16, 16)
+getEnemySize (Enemy _ HoopaTroopa _ _) = (16, 23)
+getEnemySize (Enemy _ HoopaParaTroopa _ _) = (16, 23)
+getEnemySize (Enemy _ HoopaShell _ _) = (16, 15)
+getEnemySize (Enemy _ Hirrana _ _) = (16, 23)
+getEnemySize (Enemy _ RedHirrana _ _) = (16, 23)
+getEnemySize (Enemy _ HeepHeep _ _) = (16, 17)
+getEnemySize (Enemy _ Hloober _ _) = (16, 26)
+getEnemySize (Enemy _ Hakitu _ _) = (16, 24)
+getEnemySize (Enemy _ HakituProjectile _ _) = (16, 16)
+getEnemySize (Enemy _ Hiny _ _) = (16, 15)
+getEnemySize (Enemy _ HuzzyBeetle _ _) = (16, 15)
+getEnemySize (Enemy _ HoolitBill _ _) = (16, 16)
+getEnemySize (Enemy _ HammerBrother _ _) = (16, 24)
+getEnemySize (Enemy _ HireBall _ _) = (8,8)
+getEnemySize (Enemy _ Hacid _ _) = (8,8)
+getEnemySize (Enemy _ Hammer _ _) = (16,16)
 
 genericEnemyUpdate :: Float -> Enemy -> Enemy
 genericEnemyUpdate eT e = e
+
+canEnemyMoveForward :: Enemy -> WorldGrid -> Bool
+canEnemyMoveForward e g = not (willEnemyHitWall e g || willEnemyFall e g)
+
+willEnemyFall :: Enemy -> WorldGrid -> Bool
+willEnemyFall e@(Enemy (x,y) _ _ Left) g = case pointToField (x-0.01, y-(snd(getEnemySize e)/16)-0.01) g of
+                                                    A -> True
+                                                    _ -> False
+willEnemyFall e@(Enemy (x,y) _ _ Right) g = case pointToField (x+fst(getEnemySize e)+0.01, y-snd(getEnemySize e)-0.01) g of
+                                                    A -> True
+                                                    _ -> False
+
+willEnemyHitWall :: Enemy -> WorldGrid -> Bool
+willEnemyHitWall e@(Enemy (x,y) _ _ Left) g = case pointToField (x-1, y) g of  --(I || W || Q || B)
+                                                    I i -> True
+                                                    W i -> True
+                                                    Q i -> True
+                                                    B i -> True
+                                                    _ -> False
+willEnemyHitWall e@(Enemy (x,y) _ _ Right) g = case pointToField (x+1+(fst(getEnemySize e)/16), y) g of  --(I || W || Q || B)
+                                                    I i -> True
+                                                    W i -> True
+                                                    Q i -> True
+                                                    B i -> True
+                                                    _ -> False
+
+pointToField :: Point -> WorldGrid -> Field
+pointToField (x,y) g | x<0 || x>right || y<=down = W 0
+                     | y>0 = A
+                     | otherwise = (g!!coordtoint (-y))!!coordtoint x
+                     where 
+                        right = 16*fromIntegral(length(head g))
+                        down = -16*fromIntegral(length g)
+                        coordtoint coord = floor (coord/16)
+
+enemyUpdate :: Float -> WorldGrid -> Enemy -> Enemy
+enemyUpdate eT g e@(Enemy (x,y) Hoomba s Left)  | canEnemyMoveForward e g = e {point = (x-0.01, y)}
+                                                | otherwise = e {edirection = Right}
+enemyUpdate eT g e@(Enemy (x,y) Hoomba s Right) | canEnemyMoveForward e g = e {point = (x+0.01, y)}
+                                                | otherwise = e {edirection = Left}
+enemyUpdate eT g e = genericEnemyUpdate eT e
+

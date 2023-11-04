@@ -48,7 +48,7 @@ showLevel l@(Level h@(Hario pio@(px,py) _ _ _ _ _) e wio) eT a = do
         w = wio
         tilefP = checkgrid 0 w [a!"tilesBmp1",a!"coinsBmp",a!"tilesBmp2",a!"flagBmp",a!"pipeBmp"]
         harioanimation = animateHario h eT [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp"]
-        enemiesanimation = Prelude.map (animateHenemy eT [a!"henemiesBmp", a!"howserBmp", a!"hammerBmp", a!"fireBmp", a!"acidBmpMove", a!"acidBmpSplat", a!"wormBmpMove", a!"wormBmpCharge", a!"wormBmpSpit"]) e
+        enemiesanimation = Prelude.map (animateHenemy eT [a!"henemiesBmp", a!"howserBmp", a!"hammerBmp", a!"fireballBmp", a!"acidBmpMove", a!"acidBmpSplat", a!"wormBmpMove", a!"wormBmpCharge", a!"wormBmpSpit"]) e
         fP = tilefP ++ [harioanimation] ++ enemiesanimation
     return (cameraTranspose pio (1,1) w (pictures fP))
 
