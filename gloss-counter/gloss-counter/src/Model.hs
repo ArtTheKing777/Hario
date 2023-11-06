@@ -113,7 +113,7 @@ findEnemyPos g = do
                 [] -> []
                 (x:xs) -> let t = check x in
                     case t of
-                        Just t -> Enemy (xp,yp) t EWalk Right : checkline (xp+1) yp xs
+                        Just t -> Enemy ((16*xp),-16*yp) t EWalk Right : checkline (xp+1) yp xs
                         Nothing -> checkline (xp+1) yp xs
             checkgrid ypg gi = case gi of
                 [] -> []
@@ -172,40 +172,42 @@ canEnemyMoveForward :: Enemy -> WorldGrid -> Bool
 canEnemyMoveForward e g = not (willEnemyHitWall e g || willEnemyFall e g)
 
 willEnemyFall :: Enemy -> WorldGrid -> Bool
-willEnemyFall e@(Enemy (x,y) _ _ Left) g = case pointToField (x-0.01, y-(snd(getEnemySize e)/16)-0.01) g of
+willEnemyFall e@(Enemy (x,y) _ _ Left) g = case pointToField (x-0.5-(fst(getEnemySize e)/2), y-(snd(getEnemySize e)/2)-8) g of
                                                     A -> True
                                                     _ -> False
-willEnemyFall e@(Enemy (x,y) _ _ Right) g = case pointToField (x+fst(getEnemySize e)+0.01, y-snd(getEnemySize e)-0.01) g of
+willEnemyFall e@(Enemy (x,y) _ _ Right) g = case pointToField (x+(fst(getEnemySize e)/2)+1, y-(snd(getEnemySize e)/2)-8) g of
                                                     A -> True
                                                     _ -> False
 
 willEnemyHitWall :: Enemy -> WorldGrid -> Bool
-willEnemyHitWall e@(Enemy (x,y) _ _ Left) g = case pointToField (x-1, y) g of  --(I || W || Q || B)
-                                                    I i -> True
-                                                    W i -> True
-                                                    Q i -> True
-                                                    B i -> True
-                                                    _ -> False
-willEnemyHitWall e@(Enemy (x,y) _ _ Right) g = case pointToField (x+1+(fst(getEnemySize e)/16), y) g of  --(I || W || Q || B)
-                                                    I i -> True
-                                                    W i -> True
-                                                    Q i -> True
-                                                    B i -> True
-                                                    _ -> False
+willEnemyHitWall e@(Enemy (x,y) _ _ Left) g = case pointToField (x-0.5-(fst(getEnemySize e)/2), y) g of  --(I || W || Q || B)
+                                                    A -> False
+                                                    C -> False
+                                                    X i -> False
+                                                    H -> False
+                                                    E _ -> False
+                                                    _ -> True
+willEnemyHitWall e@(Enemy (x,y) _ _ Right) g = case pointToField (x+0.5+(fst(getEnemySize e)/2), y) g of  --(I || W || Q || B)
+                                                    A -> False
+                                                    C -> False
+                                                    X i -> False
+                                                    H -> False
+                                                    E _ -> False
+                                                    _ -> True
 
-pointToField :: Point -> WorldGrid -> Field
-pointToField (x,y) g | x<0 || x>right || y<=down = W 0
-                     | y>0 = A
-                     | otherwise = (g!!coordtoint (-y))!!coordtoint x
-                     where 
-                        right = 16*fromIntegral(length(head g))
-                        down = -16*fromIntegral(length g)
-                        coordtoint coord = floor (coord/16)
-
+pointToField:: (Float,Float)-> WorldGrid -> Field
+pointToField (px,py) w | px<0 || px>=rightBorder = W 0
+                       | py>0 || py<=downBorder = A
+                       | otherwise = w!!cordToInt (-py)!!cordToInt px
+    where
+        rightBorder = 16*fromIntegral (length (head w))
+        downBorder =(-16)*fromIntegral (length w)
+        cordToInt cord = floor (cord/16)
+--
 enemyUpdate :: Float -> WorldGrid -> Enemy -> Enemy
-enemyUpdate eT g e@(Enemy (x,y) Hoomba s Left)  | canEnemyMoveForward e g = e {point = (x-0.01, y)}
-                                                | otherwise = e {edirection = Right}
-enemyUpdate eT g e@(Enemy (x,y) Hoomba s Right) | canEnemyMoveForward e g = e {point = (x+0.01, y)}
-                                                | otherwise = e {edirection = Left}
+enemyUpdate eT g e@(Enemy (x,y) Hoomba s Left)  | canEnemyMoveForward e g = e {point = (x-0.5, y)}
+                                                | otherwise = e {edirection = Right} {point = (x, y)}
+enemyUpdate eT g e@(Enemy (x,y) Hoomba s Right) | canEnemyMoveForward e g = e {point = (x+0.5, y)}
+                                                | otherwise = e {edirection = Left} {point = (x, y)}
 enemyUpdate eT g e = genericEnemyUpdate eT e
 

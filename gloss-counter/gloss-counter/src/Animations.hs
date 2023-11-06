@@ -178,8 +178,8 @@ animateHenemy :: Float -> [BitmapData] -> Enemy ->  Picture
 animateHenemy eT bmps e@(Enemy (x,y) t s l) = do
                                                     let hframes = getEnemyFrames t bmps s
                                                     let hanimation = animationLoop eT (1/2) hframes
-                                                    if l == Left then translate (8+(16*x)) (-16*y) (scale (-1) 1 hanimation)
-                                                    else translate (8+(16*x)) (-16*y) hanimation
+                                                    if l == Left then translate x y (scale (-1) 1 hanimation)
+                                                    else translate x y hanimation
 
 -- player animation sheets
 idleSheet :: PlayerPower -> [BitmapData] -> [Picture]
