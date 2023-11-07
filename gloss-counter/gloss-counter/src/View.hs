@@ -26,7 +26,6 @@ view g@(StartScreenState k t mp _ _ _)  = loadUI g
 view g@(LevelSelectState k t mp _ _ _)  = loadUI g
 view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _) e _) a s) = showLevel l t a
                                     
-                                    
 showLevel :: Level -> Float -> Map String BitmapData -> IO Picture
 showLevel l@(Level h@(Hario pio@(px,py) _ _ _ _ _) e wio) eT a = do
     let check c = case c of

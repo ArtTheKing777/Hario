@@ -9,15 +9,13 @@ updateHario :: Hario -> Hario
 updateHario p@(Hario (x, y) s pow d v@(vx, vy) g) | g = Hario (x+vx, y+vy) s pow d v g
                                                   | otherwise = Hario (x+vx, y+vy) Fall pow d (gravity v) False
 
-enemyCollideCheck :: Hario -> Enemy -> Hario
-enemyCollideCheck h e   | collidesWithEnemy e h && not (isFalling h) = case power h of
+enemyCollideCheck :: [Enemy] -> Hario -> Hario
+enemyCollideCheck e h   | anyNotDead (collidesWithEnemy h) e && isFalling h = jump h
+                        | anyNotDead (collidesWithEnemy h) e && not (isFalling h) = case power h of
                                                                 Small -> Hario (hpos h) Die (power h) (direction h) (velocity h) (onground h)
                                                                 Big -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h)
                                                                 Fire -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h)
                         | otherwise = h
-
-gravity :: Vector -> Vector
-gravity (x,y) = (x,y-0.52)
 
 moveLeft :: Hario -> Hario
 moveLeft p@(Hario pos a pow dir (vx, vy) g)   | dir == Right = Hario pos Walk pow Left (-5, vy) g
@@ -66,8 +64,12 @@ isFalling :: Hario -> Bool
 isFalling h | snd (velocity h) < 0 = True
             | otherwise            = False
 
-collidesWithEnemy :: Enemy -> Hario -> Bool
-collidesWithEnemy e h = intersects (point e,getEnemySize e) (hpos h, getHarioSize h)
+collidesWithEnemy :: Hario -> Enemy -> Bool
+collidesWithEnemy h@(Hario (hx,hy) _ _ _ _ _) e@(Enemy(ex,ey) _ _ _) = intersects ((ex-(fst(getEnemySize e)/2),ey+(snd(getEnemySize e)/2)),getEnemySize e) ((hx-(fst(getHarioSize h)/2),hy+(snd(getHarioSize h)/2)), getHarioSize h)
+
+enemyStompedCheck :: Hario -> Enemy -> Enemy
+enemyStompedCheck h e@(Enemy p t s d) | collidesWithEnemy h e && isFalling h = Enemy p t EDie d
+                                      | otherwise = e
 
 intersects :: (Point, Point) -> (Point, Point) -> Bool
 intersects r1 r2 = any (inbox r1) (corners r2) || any (inbox r2) (corners r1)
@@ -77,4 +79,3 @@ inbox ((x,y), (w,h)) (xp,yp) = xp >= x && xp <= x+w && yp >= y && yp <= y+h
 
 corners :: (Point, Point) -> [Point]
 corners ((x,y), (w,h)) = [(x,y), (x+w,y), (x,y+h), (x+w,y+h)]
-

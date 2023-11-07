@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use head" #-}
+{-# HLINT ignore "Use fewer imports" #-}
 module Animations where
 import Fileload
 import Graphics.Gloss.Data.Bitmap (Rectangle (Rectangle), BitmapData (bitmapSize))
@@ -13,8 +14,6 @@ import Model (Enemy)
 -- time, time per frame, pictures
 animationLoop :: Float -> Float -> [Picture] -> Picture
 animationLoop eT tF p = p !! floor (mod' (eT/tF) (int2Float (length p)))
-
-
 
 --load frames as [Pictures]
 getHarioFrames :: BitmapData -> [Picture]
@@ -64,13 +63,13 @@ getEnemyFrames e henemyBmp s = case e of
                                                         EWalk -> [henemyframes !! 3, henemyframes !! 4]
                                                         EAttack -> [henemyframes !! 3, henemyframes !! 4]
                                                         EDie -> [henemyframes !! 8]
-                                                        EDead -> [henemyframes !! 7]
+                                                        EDead -> []
                                     HoopaParaTroopa -> case s of
                                                         EIdle -> [henemyframes !! 5]
                                                         EWalk -> [henemyframes !! 5, henemyframes !! 6]
                                                         EAttack -> [henemyframes !! 5, henemyframes !! 6]
                                                         EDie -> [henemyframes !! 8]
-                                                        EDead -> [henemyframes !! 7]
+                                                        EDead -> []
                                     HoopaShell -> case s of
                                                         EIdle -> [henemyframes !! 7]
                                                         EWalk -> [henemyframes !! 7]

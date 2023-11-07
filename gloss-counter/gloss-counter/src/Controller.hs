@@ -76,15 +76,15 @@ updateLevelState eT (LevelPlayingState k t l a s) = do
                                                         in return (LevelPlayingState (keysupdate k) (eT+t) combine a s)
 
 update' :: Float -> Level -> (Hario -> Hario) -> Level
-update' eT l@(Level p e g) m = Level (updateHario $ tileCollisionCheck g $ setHarioGrounded g $ m $ player l) (map (enemyUpdate eT g) e) g
+update' eT l@(Level p e g) m = Level (enemyCollideCheck e $ updateHario $ tileCollisionCheck g $ setHarioGrounded g $ m $ player l) (map (enemyUpdate eT g . enemyStompedCheck (player l)) e) g
 
 setHarioGrounded::WorldGrid -> Hario -> Hario
 setHarioGrounded w h@(Hario (x,y) s p k l m) = Hario (x,y) s p k l (harioGrounded w h)
 
 harioGrounded::WorldGrid -> Hario -> Bool
 harioGrounded w h@(Hario (x,y) s p k l m) | let
-    rightBorder = 16*fromIntegral(length (head w))
-    downBorder = -16*fromIntegral(length w)
+    rightBorder = 16*fromIntegral (length (head w))
+    downBorder  =  -16*fromIntegral (length w)
     cordToInt cord = floor (cord/16)
     pointtofield (px,py) | px<0 || px>rightBorder || py<downBorder = W 0
                          | py>0 = A
@@ -101,30 +101,30 @@ harioGrounded w h@(Hario (x,y) s p k l m) | let
         _ -> [(px,py-18),(px-7.5,py-18),(px+7.5,py-18)]
     in any (fieldSolid . pointtofield) (pointToCheck (x,y) p) = True
     | otherwise = False
-    
+
 tileCollisionCheck:: WorldGrid -> Hario -> Hario
 tileCollisionCheck w h@(Hario pos s p d (0,0) g) = h
-tileCollisionCheck w h@(Hario pos@(x,y) s p d (vx,vy) g) 
+tileCollisionCheck w h@(Hario pos@(x,y) s p d (vx,vy) g)
     | any fieldSolid collidingFields = collide
     | otherwise = Hario (x,y) s p d (vx,vy) g
     where
-        collide 
+        collide
           | not al && ar =  tileCollisionCheck w (Hario (x-5,y) s p d (toZero vx 0.01,toZero vy 0.01) g)
           | not ar && al =  tileCollisionCheck w (Hario (x+5,y) s p d (toZero vx 0.01,toZero vy 0.01) g)
           | otherwise = tileCollisionCheck w (Hario (x,y) s p d (toZero vx 0.01,toZero vy 0.01) g)
-        toZero n o  
+        toZero n o
           | n>0 = if n > o then n-o else 0
           | n<0 = if n < -o then n+o else 0
           | otherwise = 0
         corners = getHarioHitBoxCorners (Hario (x+vx,y+vy) s p d (vx,vy) g)
         cordToInt cord = floor (cord/16)
-        rightBorder = 16*fromIntegral(length (head w))
-        downBorder = -16*fromIntegral(length w)
+        rightBorder = 16*fromIntegral (length (head w))
+        downBorder = -16*fromIntegral (length w)
         back r = if r>0 then r-1 else r+1
-        al = fieldSolid (pointtofield (x-8,snd (last corners)+2)) || fieldSolid (pointtofield (x-8,snd (head corners))) 
-            && not(fieldSolid (pointtofield (x-7.5,snd (head corners))))
-        ar = fieldSolid (pointtofield (x+8,snd (last corners)+2)) || fieldSolid (pointtofield (x+8,snd (head corners))) 
-            && not(fieldSolid (pointtofield (x+7.5,snd (head corners))))
+        al = fieldSolid (pointtofield (x-8,snd (last corners)+2)) || fieldSolid (pointtofield (x-8,snd (head corners)))
+            && not (fieldSolid (pointtofield (x-7.5,snd (head corners))))
+        ar = fieldSolid (pointtofield (x+8,snd (last corners)+2)) || fieldSolid (pointtofield (x+8,snd (head corners)))
+            && not (fieldSolid (pointtofield (x+7.5,snd (head corners))))
         pointtofield (px,py) | px<0 || px>rightBorder || py<=downBorder = W 0
                              | py>0 = A
                              | otherwise = (w!!cordToInt (-py))!!cordToInt px
