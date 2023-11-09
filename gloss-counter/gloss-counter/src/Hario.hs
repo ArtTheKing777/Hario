@@ -10,7 +10,7 @@ updateHario p@(Hario (x, y) s pow d v@(vx, vy) g) | g = Hario (x+vx, y+vy) s pow
                                                   | otherwise = Hario (x+vx, y+vy) Fall pow d (gravity v) False
 
 enemyCollideCheck :: [Enemy] -> Hario -> Hario
-enemyCollideCheck e h   | anyNotDead (collidesWithEnemy h) e && isFalling h = jump h
+enemyCollideCheck e h   | anyNotDead (collidesWithEnemy h) e && isFalling h = jump (h {onground = True})
                         | anyNotDead (collidesWithEnemy h) e && not (isFalling h) = case power h of
                                                                 Small -> Hario (hpos h) Die (power h) (direction h) (velocity h) (onground h)
                                                                 Big -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h)

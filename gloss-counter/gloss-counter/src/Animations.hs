@@ -57,115 +57,115 @@ getEnemyFrames e henemyBmp s = case e of
                                                 EWalk -> [henemyframes !! 0, henemyframes !! 1]
                                                 EAttack -> [henemyframes !! 0, henemyframes !! 1]
                                                 EDie -> [henemyframes !! 2]
-                                                EDead -> []   
+                                                EDead -> [Blank]   
                                     HoopaTroopa -> case s of
                                                         EIdle -> [henemyframes !! 3]
                                                         EWalk -> [henemyframes !! 3, henemyframes !! 4]
                                                         EAttack -> [henemyframes !! 3, henemyframes !! 4]
                                                         EDie -> [henemyframes !! 8]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     HoopaParaTroopa -> case s of
                                                         EIdle -> [henemyframes !! 5]
                                                         EWalk -> [henemyframes !! 5, henemyframes !! 6]
                                                         EAttack -> [henemyframes !! 5, henemyframes !! 6]
                                                         EDie -> [henemyframes !! 8]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     HoopaShell -> case s of
                                                         EIdle -> [henemyframes !! 7]
                                                         EWalk -> [henemyframes !! 7]
                                                         EAttack -> [henemyframes !! 7]
                                                         EDie -> [henemyframes !! 7]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     Hirrana -> case s of
                                                         EIdle -> [henemyframes !! 9]
                                                         EWalk -> [henemyframes !! 9, henemyframes !! 10]
                                                         EAttack -> [henemyframes !! 9, henemyframes !! 10]
                                                         EDie -> [henemyframes !! 9]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     RedHirrana -> case s of
                                                         EIdle -> [henemyframes !! 11]
                                                         EWalk -> [henemyframes !! 11, henemyframes !! 12]
                                                         EAttack -> [henemyframes !! 11, henemyframes !! 12]
                                                         EDie -> [henemyframes !! 11]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     HeepHeep -> case s of
                                                         EIdle -> [henemyframes !! 13]
                                                         EWalk -> [henemyframes !! 13, henemyframes !! 14]
                                                         EAttack -> [henemyframes !! 13, henemyframes !! 14]
                                                         EDie -> [henemyframes !! 14]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     Hloober -> case s of
                                                         EIdle -> [henemyframes !! 15]
                                                         EWalk -> [henemyframes !! 15, henemyframes !! 16]
                                                         EAttack -> [henemyframes !! 15, henemyframes !! 16]
                                                         EDie -> [henemyframes !! 16]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     Hakitu -> case s of
                                                         EIdle -> [henemyframes !! 17]
                                                         EWalk -> [henemyframes !! 17]
                                                         EAttack -> [henemyframes !! 17]
                                                         EDie -> [henemyframes !! 18]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     HakituProjectile -> case s of
                                                         EIdle -> [henemyframes !! 19, henemyframes !! 20]
                                                         EWalk -> [henemyframes !! 19, henemyframes !! 20]
                                                         EAttack -> [henemyframes !! 19, henemyframes !! 20]
                                                         EDie -> [henemyframes !! 19, henemyframes !! 20]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     HuzzyBeetle -> case s of
                                                         EIdle -> [henemyframes !! 23]
                                                         EWalk -> [henemyframes !! 23, henemyframes !! 24]
                                                         EAttack -> [henemyframes !! 23, henemyframes !! 24]
                                                         EDie -> [henemyframes !! 25]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     Hiny -> case s of
                                                         EIdle -> [henemyframes !! 21]
                                                         EWalk -> [henemyframes !! 21, henemyframes !! 22]
                                                         EAttack -> [henemyframes !! 21, henemyframes !! 22]
                                                         EDie -> [henemyframes !! 21]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     HoolitBill -> case s of
                                                         EIdle -> [henemyframes !! 26]
                                                         EWalk -> [henemyframes !! 26]
                                                         EAttack -> [henemyframes !! 26]
                                                         EDie -> [henemyframes !! 26]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     HammerBrother -> case s of
                                                         EIdle -> [henemyframes !! 29]
                                                         EWalk -> [henemyframes !! 29, henemyframes !! 30]
                                                         EAttack -> [henemyframes !! 27, henemyframes !! 28]
                                                         EDie -> [henemyframes !! 28]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     Howser -> case s of
                                                         EIdle -> [howserFrames !! 0]
                                                         EWalk -> [howserFrames !! 2, howserFrames !! 3]
                                                         EAttack -> [howserFrames !! 0, howserFrames !! 1]
                                                         EDie -> [howserFrames !! 0]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     Hammer -> case s of
                                                         EIdle -> hammerFrames
                                                         EWalk -> hammerFrames
                                                         EAttack -> hammerFrames
                                                         EDie -> hammerFrames
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     HireBall -> case s of
                                                         EIdle -> hireBallFrames
                                                         EWalk -> hireBallFrames
                                                         EAttack -> hireBallFrames
                                                         EDie -> hireBallFrames
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     Hacid -> case s of
-                                                        EIdle -> []
+                                                        EIdle -> [Blank]
                                                         EWalk -> [acidFrames !! 0, acidFrames !! 1, acidFrames !! 2, acidFrames !! 3, acidFrames !! 4, acidFrames !! 5, acidFrames !! 6]
-                                                        EAttack -> []
+                                                        EAttack -> [Blank]
                                                         EDie -> [acidFrames !! 7, acidFrames !! 8, acidFrames !! 9, acidFrames !!  10, acidFrames !! 11, acidFrames !! 12]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                     Worm -> case s of
                                                         EIdle -> [wormFrames !! 4]
                                                         EWalk -> [wormFrames !! 0, wormFrames !! 1, wormFrames !! 2, wormFrames !! 3]
                                                         EAttack -> [wormFrames !! 5, wormFrames !! 6, wormFrames !! 7, wormFrames !! 8, wormFrames !! 9, wormFrames !! 10, wormFrames !! 11]
                                                         EDie -> [wormFrames !! 4]
-                                                        EDead -> []
+                                                        EDead -> [Blank]
                                 where   henemyframes = getHenemyFrames (henemyBmp !! 0) 
                                         howserFrames = getHowserFrames (henemyBmp !! 1)
                                         hammerFrames = getHammerFrames (henemyBmp !! 2)
