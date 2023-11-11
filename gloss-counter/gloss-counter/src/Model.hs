@@ -271,16 +271,18 @@ enemyUpdate eT g e@(Enemy (x,y) HoopaTroopa s Left) | canEnemyMoveForward e g &&
                                                     | otherwise = e {edirection = Right} {point = (x, y)}
 enemyUpdate eT g e@(Enemy (x,y) HoopaTroopa s Right)| canEnemyMoveForward e g && enemyGrounded g e  = e {point = (x+0.5, y)}
                                                     | otherwise = e {edirection = Left} {point = (x, y)}
-enemyUpdate eT g e@(Enemy (x,y) Hushroom s Left)    | willEnemyHitWall e g && enemyGrounded g e  = e {point = (x-0.5, y)}
+enemyUpdate eT g e@(Enemy (x,y) Hushroom s Left)    | not (willEnemyHitWall e g) && enemyGrounded g e  = e {point = (x-0.5, y)}
+                                                    | not $ enemyGrounded g e = e {point = (x-0.5, y)}
                                                     | otherwise = e {edirection = Right} {point = (x, y)}
-enemyUpdate eT g e@(Enemy (x,y) Hushroom s Right)   | willEnemyHitWall e g && enemyGrounded g e  = e {point = (x+0.5, y)}
+enemyUpdate eT g e@(Enemy (x,y) Hushroom s Right)   | not (willEnemyHitWall e g) && enemyGrounded g e  = e {point = (x+0.5, y)}
+                                                    | not $ enemyGrounded g e = e {point = (x+0.5, y)}
                                                     | otherwise = e {edirection = Left} {point = (x, y)}
 enemyUpdate eT g e@(Enemy (x,y) HireFlower s _)     = e
 enemyUpdate eT g e                                  = genericEnemyUpdate eT e
 
 enemyGroundedUpdate :: Float -> WorldGrid -> Enemy -> Enemy
 enemyGroundedUpdate et g e | enemyGrounded g e &&  estate e /= EDie  = e
-                           | otherwise = e{point = gravity (point e)}
+                           | otherwise = e{point = gravity(gravity (point e))}
 
 enemyGrounded::WorldGrid -> Enemy -> Bool
 enemyGrounded w e@(Enemy pos@(x,y) s p k) | let
