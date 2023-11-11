@@ -13,16 +13,25 @@ import Fileload (getAcidBmp)
 
 import Graphics.Gloss (loadBMP)
 import Data.Map
+import System.Environment ( getArgs, getArgs )
+import System.Directory (renameFile, findFile)
 
 
 main :: IO ()
 main = do
+    file <- findFile ["media"] "HarioSaveTmp.txt"
+    let deltmp = case file of
+            Nothing -> return()
+            Just a -> renameFile a "media/HarioSave.txt"
+    doit <- deltmp
+
     --get all the frames and load them once here because haskell
     harioBmp <- getHarioBmp
     harioAnimationSheetBmp <- getHarioAnimationSheetBmp
     fireHarioAnimationSheetBmp <- getFireHarioAnimationSheetBmp
     smallHarioAnimationSheetBmp <- getSmallHarioAnimationSheetBmp
     textBocBmp <- getTextBoxBmp
+    textBocBmpNo <- getTextBoxBmpNo
     henemiesBmp <- getHenemiesBmp
     hammerBmp <- getHammerBmp
     fireBmp <- getFireBmp
@@ -33,6 +42,7 @@ main = do
     coinsBmp <- getCoinsBmp
     flagBmp <- getFlagBmp
     hoolitBillTowerBmp <- getHoolitBillTowerBmp
+    level0 <- getSave "harioSave"
     level1 <- getLevel "1"
     level2 <- getLevel "2"
 
@@ -42,6 +52,7 @@ main = do
             ("smallHarioAnimationSheetBmp",smallHarioAnimationSheetBmp),
             ("fireHarioAnimationSheetBmp",fireHarioAnimationSheetBmp),
             ("textBoxBmp",textBocBmp),
+            ("textBoxBmpNo",textBocBmpNo),
             ("henemiesBmp",henemiesBmp),
             ("hammerBmp",hammerBmp),
             ("fireBmp",fireBmp),
@@ -56,7 +67,7 @@ main = do
             ("coinsBmp",coinsBmp),
             ("flagBmp",flagBmp),
             ("hoolitBillTowerBmp",hoolitBillTowerBmp)]
-        loadedLevels = [level1,level2]
+        loadedLevels = [level0,level1,level2]
 
     playIO (InWindow "window" (800,450) (0, 0)) -- Or FullScreen
               (makeColorI 135 206 235 255)          -- Background color

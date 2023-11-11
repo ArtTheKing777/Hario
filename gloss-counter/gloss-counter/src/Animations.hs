@@ -193,7 +193,7 @@ harioFallAnimation p eT s b = do
 
 
 animateHario :: Hario -> Float -> [BitmapData] -> Picture
-animateHario p@(Hario (x,y) _ _ _ _ _) t b = case state p of
+animateHario p@(Hario (x,y) _ _ _ _ _ _ _) t b = case state p of
                         Idle -> do
                                     let animation = harioIdleAnimation (power p) t (fst (velocity p)*10) b
                                     if direction p == Left then translate x y (scale (-1) 1 animation)
