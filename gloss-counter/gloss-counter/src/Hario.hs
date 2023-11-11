@@ -12,9 +12,9 @@ updateHario p@(Hario (x, y) s pow d v@(vx, vy) g l c) | g = Hario (x+vx, y+vy) s
 enemyCollideCheck :: [Enemy] -> Hario -> Hario
 enemyCollideCheck e h   | anyNotDead (collidesWithEnemy h) e && isFalling h = jump (h {onground = True})
                         | anyNotDead (collidesWithEnemy h) e && not (isFalling h) = case power h of
-                                                                Small -> Hario (hpos h) Die (power h) (direction h) (velocity h) (onground h)
-                                                                Big -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h)
-                                                                Fire -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h)
+                                                                Small -> Hario (hpos h) Die (power h) (direction h) (velocity h) (onground h) (lives h) (coins h)
+                                                                Big -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h) (lives h) (coins h)
+                                                                Fire -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h) (lives h) (coins h)
                         | otherwise = h
 
 moveLeft :: Hario -> Hario
@@ -59,15 +59,15 @@ getHarioHitBoxCorners h@(Hario (x,y) s _ d v g l c) = [tl,dl,ll,rl,al,tr,lr,rr,a
           al = (x+(sizex/2),y)
 
 jump :: Hario -> Hario
-jump p@(Hario (x,y) s pow dir (vx, vy) g) | not g      = p 
-                                          | otherwise  = Hario (x,y) Jump pow dir (vx,8.5) False
+jump p@(Hario (x,y) s pow dir (vx, vy) g _ _) | not g      = p 
+                                              | otherwise  = Hario (x,y) Jump pow dir (vx,8.5) False (lives p) (coins p)
 
 isFalling :: Hario -> Bool
 isFalling h | snd (velocity h) < 0 = True
             | otherwise            = False
 
 collidesWithEnemy :: Hario -> Enemy -> Bool
-collidesWithEnemy h@(Hario (hx,hy) _ _ _ _ _) e@(Enemy(ex,ey) _ _ _) = intersects ((ex-(fst(getEnemySize e)/2),ey+(snd(getEnemySize e)/2)),getEnemySize e) ((hx-(fst(getHarioSize h)/2),hy+(snd(getHarioSize h)/2)), getHarioSize h)
+collidesWithEnemy h@(Hario (hx,hy) _ _ _ _ _ _ _) e@(Enemy(ex,ey) _ _ _) = intersects ((ex-(fst(getEnemySize e)/2),ey+(snd(getEnemySize e)/2)),getEnemySize e) ((hx-(fst(getHarioSize h)/2),hy+(snd(getHarioSize h)/2)), getHarioSize h)
 
 enemyStompedCheck :: Hario -> Enemy -> Enemy
 enemyStompedCheck h e@(Enemy p t s d) | collidesWithEnemy h e && isFalling h = Enemy p t EDie d

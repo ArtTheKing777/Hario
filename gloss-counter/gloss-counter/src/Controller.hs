@@ -110,8 +110,8 @@ update' eT l@(Level p e g c) m = worldGridUpdate $ Level (
 worldGridUpdate:: Level -> Level
 worldGridUpdate level@(Level h@(Hario (x,y) s p k (vx,vy) m l co) e g c) = qblockcollide $ blockcollide $ flagcollide $ coincollide level
     where
-        collidingFields = map (pointToField g) (getHarioHitBoxCorners h)
-        collidingFieldsTop = map (pointToField g) getFieldsTop
+        collidingFields = map (Controller.pointToField g) (getHarioHitBoxCorners h)
+        collidingFieldsTop = map (Controller.pointToField g) getFieldsTop
         getFieldsTop = case p of
             Small -> [(x,y+9),(x-7,y+9),(x+7,y+9)]
             Big -> [(x,y+18),(x-7.5,y+18),(x+7.5,y+18)]
@@ -177,7 +177,7 @@ pointToField w (px,py) | px<0 || px>=rightBorder = W 0
         cordToInt cord = floor (cord/16)
 
 harioGrounded::WorldGrid -> Hario -> Bool
-harioGrounded w h@(Hario (x,y) s p k l m) | let
+harioGrounded w h@(Hario (x,y) s p k l m _ _) | let
     rightBorder = 16*fromIntegral (length (head w))
     downBorder  =  -16*fromIntegral (length w)
     cordToInt cord = floor (cord/16)
@@ -194,7 +194,7 @@ harioGrounded w h@(Hario (x,y) s p k l m) | let
     pointToCheck (px,py) u = case u of
         Small -> [(px,py-9),(px-7,py-9),(px+7,py-9)]
         _ -> [(px,py-18),(px-7.5,py-18),(px+7.5,py-18)]
-    in any (fieldSolid . pointToField w) (pointToCheck (x,y) p) = True
+    in any (fieldSolid . Controller.pointToField w) (pointToCheck (x,y) p) = True
     | otherwise = False
 
 
@@ -219,7 +219,7 @@ tileCollisionCheck w h@(Hario pos@(x,y) s p d (vx,vy) g l co)
             fieldSolid (pointtofield (x-8,snd (head corners))) &&  not (fieldSolid $ pointtofield (x-7,snd (head corners)))
         ar = fieldSolid (pointtofield (x+8,snd (last corners))) && not (fieldSolid $ pointtofield (x+7,snd (last corners))) ||
             fieldSolid (pointtofield (x+8,snd (head corners))) &&  not (fieldSolid $ pointtofield (x+7,snd (head corners)))
-        pointtofield = pointToField w
+        pointtofield = Controller.pointToField w
         collidingFieldsl = map pointtofield (take (div (length corners) 2) corners)
         collidingFieldsr = map pointtofield (drop (div (length corners) 2) corners)
         collidingFields = map pointtofield corners
