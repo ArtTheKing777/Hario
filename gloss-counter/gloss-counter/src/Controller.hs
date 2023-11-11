@@ -93,11 +93,14 @@ updateLevelState eT (LevelPlayingState k t l a s) = let
                                                         keysupdate c = if S.member (SpecialKey KeySpace) c
                                                                then S.delete (SpecialKey KeySpace) c
                                                                else c
-                                                        combine = update' (eT+t) l (mover $ movel $ jump_ $ idle)
-                                                        in return (LevelPlayingState (keysupdate k) (eT+t) combine a s)
+                                                        reed = read $ head $ last s :: Int
+                                                        random = randomR (1::Int,1000::Int) (mkStdGen reed) :: (Int,StdGen)
+                                                        combine = update' (eT+t) l (mover $ movel $ jump_ idle) (fst random)
+                                                        newseedinlist = take (length s -1) s ++ [[show (fst random)]]
+                                                        in return (LevelPlayingState (keysupdate k) (eT+t) combine a newseedinlist )
 
-update' :: Float -> Level -> (Hario -> Hario) -> Level
-update' eT l@(Level p e g c) m = worldGridUpdate $ Level (
+update' :: Float -> Level -> (Hario -> Hario) -> Int -> Level
+update' eT l@(Level p e g c) m rn = worldGridUpdate rn $ Level (
     deathByTime eT
     $ deathByFalling g
     $ updateHario
@@ -105,10 +108,10 @@ update' eT l@(Level p e g c) m = worldGridUpdate $ Level (
     $ checkFor1Up
     $ tileCollisionCheck g
     $ setHarioGrounded g
-    $ m $ player l) (map (enemyUpdate eT g . enemyStompedCheck p) e) g c
+    $ m $ player l) (map (enemyGroundedUpdate eT g . enemyUpdate eT g . enemyStompedCheck p) e) g c
 
-worldGridUpdate:: Level -> Level
-worldGridUpdate level@(Level h@(Hario (x,y) s p k (vx,vy) m l co) e g c) = qblockcollide $ blockcollide $ flagcollide $ coincollide level
+worldGridUpdate::  Int -> Level -> Level
+worldGridUpdate rn level@(Level h@(Hario (x,y) s p k (vx,vy) m l co) e g c)= qblockcollide $ blockcollide $ flagcollide $ coincollide level
     where
         collidingFields = map (Controller.pointToField g) (getHarioHitBoxCorners h)
         collidingFieldsTop = map (Controller.pointToField g) getFieldsTop
@@ -136,8 +139,15 @@ worldGridUpdate level@(Level h@(Hario (x,y) s p k (vx,vy) m l co) e g c) = qbloc
         qblockcollide :: Level -> Level
         qblockcollide i = if Q 0 `elem` collidingFieldsTop && vy > 0
                     then i {player=Hario (x,y) s p k (vx,-2) m l co,
-                    grid = setFieldInWorldGrid (Q 1) g (collisionAt (Q 0) collidingFieldsTop getFieldsTop)}
+                    grid = setFieldInWorldGrid (Q 1) g (collisionAt (Q 0) collidingFieldsTop getFieldsTop),
+                    enemies = randomInQ (collisionAt (Q 0) collidingFieldsTop getFieldsTop) : (enemies level)}
                     else i
+        randomInQ :: Point -> Enemy
+        randomInQ (x,y) | rn<100 = Enemy (x,y+32) HireFlower EWalk Model.Right
+                        | rn<600 = Enemy (x,y+32) Hushroom EWalk Model.Right
+                        | otherwise = Enemy (x,y+32) Hoomba EWalk Model.Right
+                
+                            
 
 setFieldInWorldGrid:: Field -> WorldGrid -> Point -> WorldGrid
 setFieldInWorldGrid f g (x,y) = setElem gy g (rowset (g!!gy))

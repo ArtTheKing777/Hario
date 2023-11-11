@@ -41,6 +41,12 @@ getTextBoxBmpNo = loadBitmapData "media/textBoxNo.bmp"
 getHenemiesBmp :: IO BitmapData
 getHenemiesBmp = loadBitmapData "media/enemies/henemies.bmp"
 
+getFireFlowerBmp :: IO BitmapData
+getFireFlowerBmp = loadBitmapData "media/powers/fireFlower.bmp"
+
+getMushRoomBmp :: IO BitmapData
+getMushRoomBmp = loadBitmapData "media/powers/mushroom.bmp"
+
 getHowserBmp :: IO BitmapData
 getHowserBmp = loadBitmapData "media/enemies/howser.bmp"
 

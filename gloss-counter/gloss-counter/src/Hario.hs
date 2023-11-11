@@ -10,12 +10,35 @@ updateHario p@(Hario (x, y) s pow d v@(vx, vy) g l c) | g = Hario (x+vx, y+vy) s
                                                       | otherwise = Hario (x+vx, y+vy) Fall pow d (gravity v) False l c
 
 enemyCollideCheck :: [Enemy] -> Hario -> Hario
-enemyCollideCheck e h   | anyNotDead (collidesWithEnemy h) e && isFalling h = jump (h {onground = True})
-                        | anyNotDead (collidesWithEnemy h) e && not (isFalling h) = case power h of
-                                                                Small -> Hario (hpos h) Die (power h) (direction h) (velocity h) (onground h) (lives h) (coins h)
-                                                                Big -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h) (lives h) (coins h)
-                                                                Fire -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h) (lives h) (coins h)
+enemyCollideCheck e h   | anyNotDead (collidesWithEnemy h) e && isFalling h = case findEnemyThatCollideWithHario e h of
+                                                                                Just Hushroom -> getPowerUp Hushroom h
+                                                                                Just HireFlower -> getPowerUp HireFlower h
+                                                                                _ ->  jump (h {onground = True})
+                        | anyNotDead (collidesWithEnemy h) e && not (isFalling h) = 
+                                                            case findEnemyThatCollideWithHario e h of
+                                                                Just Hushroom -> getPowerUp Hushroom h
+                                                                Just HireFlower -> getPowerUp HireFlower h
+                                                                _        -> case power h of
+                                                                                Small -> Hario (hpos h) Die (power h) (direction h) (velocity h) (onground h) (lives h) (coins h)
+                                                                                Big -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h) (lives h) (coins h)
+                                                                                Fire -> Hario (hpos h) (state h) Big (direction h) (velocity h) (onground h) (lives h) (coins h)
                         | otherwise = h
+
+findEnemyThatCollideWithHario :: [Enemy] -> Hario -> Maybe EnemyType
+findEnemyThatCollideWithHario [] h = Nothing
+findEnemyThatCollideWithHario (x:xs) h | collidesWithEnemy h x = Just (etype x)
+                                       | otherwise = findEnemyThatCollideWithHario xs h
+
+getPowerUp :: EnemyType -> Hario -> Hario
+getPowerUp Hushroom h = case power h of
+                        Fire -> h
+                        Big -> h
+                        Small -> Hario (fst(hpos h),snd(hpos h)+16) (state h) Big (direction h) (velocity h) (onground h) (lives h) (coins h)
+getPowerUp HireFlower h = case power h of
+                        Fire -> h
+                        Big ->  Hario (hpos h) (state h) Fire (direction h) (velocity h) (onground h) (lives h) (coins h)
+                        Small -> Hario (fst(hpos h),snd(hpos h)+16) (state h) Fire (direction h) (velocity h) (onground h) (lives h) (coins h)
+
 
 moveLeft :: Hario -> Hario
 moveLeft p@(Hario pos a pow dir (vx, vy) g l c)   | dir == Right = Hario pos Walk pow Left (-4, vy) g l c
@@ -70,6 +93,12 @@ collidesWithEnemy :: Hario -> Enemy -> Bool
 collidesWithEnemy h@(Hario (hx,hy) _ _ _ _ _ _ _) e@(Enemy(ex,ey) _ _ _) = intersects ((ex-(fst(getEnemySize e)/2),ey+(snd(getEnemySize e)/2)),getEnemySize e) ((hx-(fst(getHarioSize h)/2),hy+(snd(getHarioSize h)/2)), getHarioSize h)
 
 enemyStompedCheck :: Hario -> Enemy -> Enemy
+enemyStompedCheck h e@(Enemy p Hushroom s d) 
+                                      | collidesWithEnemy h e = Enemy p Hushroom EDie d
+                                      | otherwise = e
+enemyStompedCheck h e@(Enemy p HireFlower s d) 
+                                      | collidesWithEnemy h e = Enemy p HireFlower EDie d
+                                      | otherwise = e
 enemyStompedCheck h e@(Enemy p t s d) | collidesWithEnemy h e && isFalling h = Enemy p t EDie d
                                       | otherwise = e
 
