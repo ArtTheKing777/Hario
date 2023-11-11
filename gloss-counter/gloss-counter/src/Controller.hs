@@ -101,10 +101,11 @@ update' eT l@(Level p e g c) m = worldGridUpdate $ Level (
     deathByTime eT
     $ deathByFalling g
     $ updateHario
+    $ enemyCollideCheck e
     $ checkFor1Up
     $ tileCollisionCheck g
     $ setHarioGrounded g
-    $ m $ player l) e g c
+    $ m $ player l) (map (enemyUpdate eT g . enemyStompedCheck p) e) g c
 
 worldGridUpdate:: Level -> Level
 worldGridUpdate level@(Level h@(Hario (x,y) s p k (vx,vy) m l co) e g c) = qblockcollide $ blockcollide $ flagcollide $ coincollide level
@@ -176,7 +177,13 @@ pointToField w (px,py) | px<0 || px>=rightBorder = W 0
         cordToInt cord = floor (cord/16)
 
 harioGrounded::WorldGrid -> Hario -> Bool
-harioGrounded w h@(Hario (x,y) s p k v m l co) | let
+harioGrounded w h@(Hario (x,y) s p k l m) | let
+    rightBorder = 16*fromIntegral (length (head w))
+    downBorder  =  -16*fromIntegral (length w)
+    cordToInt cord = floor (cord/16)
+    pointtofield (px,py) | px<0 || px>rightBorder || py<downBorder = W 0
+                         | py>0 = A
+                         | otherwise = (w!!cordToInt (-py))!!cordToInt px
     fieldSolid f = case f of
             A -> False
             C -> False
@@ -224,8 +231,6 @@ tileCollisionCheck w h@(Hario pos@(x,y) s p d (vx,vy) g l co)
             E _ -> False
             W 8 -> False
             _ -> True
-
-
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState

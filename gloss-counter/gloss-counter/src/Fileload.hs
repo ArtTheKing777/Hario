@@ -50,6 +50,9 @@ getHammerBmp = loadBitmapData "media/enemies/hammer.bmp"
 getFireBmp :: IO BitmapData
 getFireBmp = loadBitmapData "media/enemies/fire.bmp"
 
+getFireBallBmp :: IO BitmapData
+getFireBallBmp = loadBitmapData "media/enemies/fireball.bmp"
+
 getWormBmp :: IO [BitmapData]
 getWormBmp = do
                 move <- loadBitmapData "media/enemies/Worm/Maggot-Move.bmp" 
@@ -85,7 +88,7 @@ getHoolitBillTowerBmp = loadBitmapData "media/tiles/bulletbilltower.bmp"
 
 getLevel :: String -> IO [[Char]]
 getLevel s = do
-    l <- readFile ("media/Levels/Level"++s++".txt")
+    l <- readFile ("media/levels/level"++s++".txt")
     return (lines l)
 
 getSave :: String -> IO [[Char]]

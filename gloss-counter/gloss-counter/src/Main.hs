@@ -33,8 +33,10 @@ main = do
     textBocBmp <- getTextBoxBmp
     textBocBmpNo <- getTextBoxBmpNo
     henemiesBmp <- getHenemiesBmp
+    howserBmp <- getHowserBmp
     hammerBmp <- getHammerBmp
     fireBmp <- getFireBmp
+    fireballBmp <- getFireBallBmp
     wormBmp <- getWormBmp
     acidBmp <- getAcidBmp
     tilesBmp <- getTilesBmp
@@ -54,8 +56,10 @@ main = do
             ("textBoxBmp",textBocBmp),
             ("textBoxBmpNo",textBocBmpNo),
             ("henemiesBmp",henemiesBmp),
+            ("howserBmp", howserBmp),
             ("hammerBmp",hammerBmp),
             ("fireBmp",fireBmp),
+            ("fireballBmp", fireballBmp),
             ("wormBmpMove",head wormBmp),
             ("wormBmpSpit",wormBmp!!1),
             ("wormBmpCharge",wormBmp!!2),
@@ -69,7 +73,7 @@ main = do
             ("hoolitBillTowerBmp",hoolitBillTowerBmp)]
         loadedLevels = [level0,level1,level2]
 
-    playIO (InWindow "window" (800,450) (0, 0)) -- Or FullScreen
+    playIO (InWindow "Hario" (800,450) (0, 0)) -- Or FullScreen
               (makeColorI 135 206 235 255)          -- Background color
               fps               -- Frames per second
               (initialState loadedAnimations loadedLevels)     -- Initial state

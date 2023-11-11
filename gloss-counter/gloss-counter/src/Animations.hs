@@ -1,18 +1,15 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use head" #-}
+{-# HLINT ignore "Use fewer imports" #-}
 module Animations where
 import Fileload
 import Graphics.Gloss.Data.Bitmap (Rectangle (Rectangle), BitmapData (bitmapSize))
-import Graphics.Gloss.Data.Picture (Picture (BitmapSection), scale, bitmap, translate)
+import Graphics.Gloss.Data.Picture (Picture (BitmapSection, Blank), scale, bitmap, translate)
 import Data.Fixed (mod')
 import GHC.Float (int2Float)
 import Model
-    ( EnemyType(..),
-      Hario(Hario, direction, state, power, velocity),
-      PlayerPower(..),
-      Looking(Left),
-      PlayerState(Swim, Idle, Walk, Jump, Fall, Die) )
 import Prelude hiding (Left)
+import Model (Enemy)
 
 -- time, time per frame, pictures
 animationLoop :: Float -> Float -> [Picture] -> Picture
@@ -31,60 +28,157 @@ getSmallHarioFrames smallHarioSheetBmp = makeListofSheet (Rectangle (0, -72) (17
 getHenemyFrames :: BitmapData -> [Picture]
 getHenemyFrames henemySheetBmp = makeListofSheet (Rectangle (0, -1) (17, -35)) henemySheetBmp (fst (bitmapSize henemySheetBmp))
 
-getHammerFrames :: IO [Picture]
-getHammerFrames = do
-                    hammersheetbmp <- getHammerBmp
-                    return (makeListofSheet (Rectangle (0, -1) (22, -17)) hammersheetbmp (fst (bitmapSize hammersheetbmp)))
+getHammerFrames :: BitmapData -> [Picture]
+getHammerFrames hammersheetbmp = makeListofSheet (Rectangle (0, -1) (22, -17)) hammersheetbmp (fst (bitmapSize hammersheetbmp))
 
-getHireBallFrames :: IO [Picture]
-getHireBallFrames = do
-                        hireballsheetbmp <- getFireBmp
-                        return (makeListofSheet (Rectangle (0, -1) (44, -17)) hireballsheetbmp (fst (bitmapSize hireballsheetbmp)))
+getHireBallFrames :: BitmapData -> [Picture]
+getHireBallFrames hireballsheetbmp = makeListofSheet (Rectangle (0, -1) (8, -8)) hireballsheetbmp (fst (bitmapSize hireballsheetbmp))
 
-getAcidFrames :: IO [Picture]
-getAcidFrames = do
-                    acidframesbmps <- getAcidBmp
-                    let acidframes = makeListofSheet (Rectangle (0,-1) (80, -80)) (acidframesbmps !! 0) (fst (bitmapSize (acidframesbmps !! 0))) ++
+getAcidFrames :: [BitmapData] -> [Picture]
+getAcidFrames acidframesbmps = scaledacidframes
+                            where acidframes = makeListofSheet (Rectangle (0,-1) (80, -80)) (acidframesbmps !! 0) (fst (bitmapSize (acidframesbmps !! 0))) ++
                                         makeListofSheet (Rectangle (0, -1) (80, -80)) (acidframesbmps !! 1) (fst (bitmapSize (acidframesbmps !! 1)))
-                    let scaledacidframes = map (scale 0.22 0.22) acidframes
-                    return scaledacidframes
-getWormFrames :: IO [Picture]
-getWormFrames = do
-                    wormframesbmps <- getWormBmp
-                    let wormframes = makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 0) (fst (bitmapSize (wormframesbmps !! 0))) ++
+                                  scaledacidframes = map (scale 0.22 0.22) acidframes  
+                    
+getWormFrames :: [BitmapData] -> [Picture]
+getWormFrames wormframesbmps = scaledwormframes
+                            where wormframes = makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 0) (fst (bitmapSize (wormframesbmps !! 0))) ++
                                         makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 1) (fst (bitmapSize (wormframesbmps !! 1))) ++
                                         [bitmap (wormframesbmps !! 2)]
-                    let scaledwormframes = map (scale 0.22 0.22) wormframes
-                    return scaledwormframes
+                                  scaledwormframes = map (scale 0.45 0.45) wormframes
 
-getHowserFrames :: IO [Picture]
-getHowserFrames = do
-                    howserSheetBmp <- getHowserBmp
-                    return (makeListofSheet (Rectangle (0, -1) (35, -35)) howserSheetBmp (fst (bitmapSize howserSheetBmp)))
+getHowserFrames :: BitmapData -> [Picture]
+getHowserFrames howserSheetBmp = makeListofSheet (Rectangle (0, -1) (35, -35)) howserSheetBmp (fst (bitmapSize howserSheetBmp))
 
-getEnemyFrames :: EnemyType -> BitmapData -> IO [Picture]
-getEnemyFrames e henemyBmp= do
-                    let henemyframes = getHenemyFrames henemyBmp
-                    case e of
-                        Hoomba -> return [henemyframes !! 0, henemyframes !! 1, henemyframes !! 2]
-                        HoopaTroopa -> return [henemyframes !! 3, henemyframes !! 4]
-                        HoopaParaTroopa -> return [henemyframes !! 5, henemyframes !! 6]
-                        HoopaShell -> return [henemyframes !! 7, henemyframes !! 8]
-                        Hirrana -> return [henemyframes !! 9, henemyframes !! 10]
-                        RedHirrana -> return [henemyframes !! 11, henemyframes !! 12]
-                        HeepHeep -> return [henemyframes !! 13, henemyframes !! 14]
-                        Hloober -> return [henemyframes !! 15, henemyframes !! 16]
-                        Hakitu -> return [henemyframes !! 17, henemyframes !! 18]
-                        HakituProjectile -> return [henemyframes !! 19, henemyframes !! 20]
-                        HuzzyBeetle -> return [henemyframes !! 23, henemyframes !! 24]
-                        Hiny -> return [henemyframes !! 21, henemyframes !! 22]
-                        HoolitBill -> return [henemyframes !! 25]
-                        HammerBrother -> return [henemyframes !! 26, henemyframes !! 27, henemyframes !! 28, henemyframes !! 29]
-                        Howser -> getHowserFrames
-                        Hammer -> getHammerFrames
-                        HireBall -> getHireBallFrames
-                        Hacid -> getAcidFrames
-                        Worm -> getWormFrames
+getEnemyFrames :: EnemyType -> [BitmapData] -> EnemyState -> [Picture]
+getEnemyFrames e henemyBmp s = case e of
+                                    Hoomba -> case s of
+                                                EIdle -> [henemyframes !! 0]
+                                                EWalk -> [henemyframes !! 0, henemyframes !! 1]
+                                                EAttack -> [henemyframes !! 0, henemyframes !! 1]
+                                                EDie -> [henemyframes !! 2]
+                                                EDead -> [Blank]   
+                                    HoopaTroopa -> case s of
+                                                        EIdle -> [henemyframes !! 3]
+                                                        EWalk -> [henemyframes !! 3, henemyframes !! 4]
+                                                        EAttack -> [henemyframes !! 3, henemyframes !! 4]
+                                                        EDie -> [henemyframes !! 8]
+                                                        EDead -> [Blank]
+                                    HoopaParaTroopa -> case s of
+                                                        EIdle -> [henemyframes !! 5]
+                                                        EWalk -> [henemyframes !! 5, henemyframes !! 6]
+                                                        EAttack -> [henemyframes !! 5, henemyframes !! 6]
+                                                        EDie -> [henemyframes !! 8]
+                                                        EDead -> [Blank]
+                                    HoopaShell -> case s of
+                                                        EIdle -> [henemyframes !! 7]
+                                                        EWalk -> [henemyframes !! 7]
+                                                        EAttack -> [henemyframes !! 7]
+                                                        EDie -> [henemyframes !! 7]
+                                                        EDead -> [Blank]
+                                    Hirrana -> case s of
+                                                        EIdle -> [henemyframes !! 9]
+                                                        EWalk -> [henemyframes !! 9, henemyframes !! 10]
+                                                        EAttack -> [henemyframes !! 9, henemyframes !! 10]
+                                                        EDie -> [henemyframes !! 9]
+                                                        EDead -> [Blank]
+                                    RedHirrana -> case s of
+                                                        EIdle -> [henemyframes !! 11]
+                                                        EWalk -> [henemyframes !! 11, henemyframes !! 12]
+                                                        EAttack -> [henemyframes !! 11, henemyframes !! 12]
+                                                        EDie -> [henemyframes !! 11]
+                                                        EDead -> [Blank]
+                                    HeepHeep -> case s of
+                                                        EIdle -> [henemyframes !! 13]
+                                                        EWalk -> [henemyframes !! 13, henemyframes !! 14]
+                                                        EAttack -> [henemyframes !! 13, henemyframes !! 14]
+                                                        EDie -> [henemyframes !! 14]
+                                                        EDead -> [Blank]
+                                    Hloober -> case s of
+                                                        EIdle -> [henemyframes !! 15]
+                                                        EWalk -> [henemyframes !! 15, henemyframes !! 16]
+                                                        EAttack -> [henemyframes !! 15, henemyframes !! 16]
+                                                        EDie -> [henemyframes !! 16]
+                                                        EDead -> [Blank]
+                                    Hakitu -> case s of
+                                                        EIdle -> [henemyframes !! 17]
+                                                        EWalk -> [henemyframes !! 17]
+                                                        EAttack -> [henemyframes !! 17]
+                                                        EDie -> [henemyframes !! 18]
+                                                        EDead -> [Blank]
+                                    HakituProjectile -> case s of
+                                                        EIdle -> [henemyframes !! 19, henemyframes !! 20]
+                                                        EWalk -> [henemyframes !! 19, henemyframes !! 20]
+                                                        EAttack -> [henemyframes !! 19, henemyframes !! 20]
+                                                        EDie -> [henemyframes !! 19, henemyframes !! 20]
+                                                        EDead -> [Blank]
+                                    HuzzyBeetle -> case s of
+                                                        EIdle -> [henemyframes !! 23]
+                                                        EWalk -> [henemyframes !! 23, henemyframes !! 24]
+                                                        EAttack -> [henemyframes !! 23, henemyframes !! 24]
+                                                        EDie -> [henemyframes !! 25]
+                                                        EDead -> [Blank]
+                                    Hiny -> case s of
+                                                        EIdle -> [henemyframes !! 21]
+                                                        EWalk -> [henemyframes !! 21, henemyframes !! 22]
+                                                        EAttack -> [henemyframes !! 21, henemyframes !! 22]
+                                                        EDie -> [henemyframes !! 21]
+                                                        EDead -> [Blank]
+                                    HoolitBill -> case s of
+                                                        EIdle -> [henemyframes !! 26]
+                                                        EWalk -> [henemyframes !! 26]
+                                                        EAttack -> [henemyframes !! 26]
+                                                        EDie -> [henemyframes !! 26]
+                                                        EDead -> [Blank]
+                                    HammerBrother -> case s of
+                                                        EIdle -> [henemyframes !! 29]
+                                                        EWalk -> [henemyframes !! 29, henemyframes !! 30]
+                                                        EAttack -> [henemyframes !! 27, henemyframes !! 28]
+                                                        EDie -> [henemyframes !! 28]
+                                                        EDead -> [Blank]
+                                    Howser -> case s of
+                                                        EIdle -> [howserFrames !! 0]
+                                                        EWalk -> [howserFrames !! 2, howserFrames !! 3]
+                                                        EAttack -> [howserFrames !! 0, howserFrames !! 1]
+                                                        EDie -> [howserFrames !! 0]
+                                                        EDead -> [Blank]
+                                    Hammer -> case s of
+                                                        EIdle -> hammerFrames
+                                                        EWalk -> hammerFrames
+                                                        EAttack -> hammerFrames
+                                                        EDie -> hammerFrames
+                                                        EDead -> [Blank]
+                                    HireBall -> case s of
+                                                        EIdle -> hireBallFrames
+                                                        EWalk -> hireBallFrames
+                                                        EAttack -> hireBallFrames
+                                                        EDie -> hireBallFrames
+                                                        EDead -> [Blank]
+                                    Hacid -> case s of
+                                                        EIdle -> [Blank]
+                                                        EWalk -> [acidFrames !! 0, acidFrames !! 1, acidFrames !! 2, acidFrames !! 3, acidFrames !! 4, acidFrames !! 5, acidFrames !! 6]
+                                                        EAttack -> [Blank]
+                                                        EDie -> [acidFrames !! 7, acidFrames !! 8, acidFrames !! 9, acidFrames !!  10, acidFrames !! 11, acidFrames !! 12]
+                                                        EDead -> [Blank]
+                                    Worm -> case s of
+                                                        EIdle -> [wormFrames !! 4]
+                                                        EWalk -> [wormFrames !! 0, wormFrames !! 1, wormFrames !! 2, wormFrames !! 3]
+                                                        EAttack -> [wormFrames !! 5, wormFrames !! 6, wormFrames !! 7, wormFrames !! 8, wormFrames !! 9, wormFrames !! 10, wormFrames !! 11]
+                                                        EDie -> [wormFrames !! 4]
+                                                        EDead -> [Blank]
+                                where   henemyframes = getHenemyFrames (henemyBmp !! 0) 
+                                        howserFrames = getHowserFrames (henemyBmp !! 1)
+                                        hammerFrames = getHammerFrames (henemyBmp !! 2)
+                                        hireBallFrames = getHireBallFrames (henemyBmp !! 3)
+                                        acidFrames = getAcidFrames [henemyBmp !! 4, henemyBmp !! 5]
+                                        wormFrames = getWormFrames [henemyBmp !! 6, henemyBmp !! 7, henemyBmp !! 8]
+
+animateHenemy :: Float -> [BitmapData] -> Enemy ->  Picture
+animateHenemy eT bmps e@(Enemy (x,y) t s l) = do
+                                                    let hframes = getEnemyFrames t bmps s
+                                                    let hanimation = animationLoop eT (1/2) hframes
+                                                    if l == Left then translate x y (scale (-1) 1 hanimation)
+                                                    else translate x y hanimation
 
 -- player animation sheets
 idleSheet :: PlayerPower -> [BitmapData] -> [Picture]
@@ -218,6 +312,9 @@ animateHario p@(Hario (x,y) _ _ _ _ _ _ _) t b = case state p of
                                     let animation = harioSwimAnimation (power p) t (fst (velocity p)*10) b
                                     if direction p == Left then translate x y (scale (-1) 1 animation)
                                     else translate x y animation
+
+
+
 -- | 270x-35px for normal hario
 -- | 360x-71px from (0, -35) for fire hario
 -- | 251x-89px from (0, -71) for small hario

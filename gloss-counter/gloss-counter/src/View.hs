@@ -98,9 +98,6 @@ cameraTranspose (x,y) (zx,zy) g p = translate cx cy (scale zx zy p)
           cy | camBorderDownY <= downBorder = -downBorder-225
              | otherwise = -y
 
-
-
-
 loadUI:: GameState -> IO Picture
 loadUI (StartScreenState _ _ _ ui _ _) = return $ pictures $ Prelude.map getUIElemtpic ui
 loadUI (LevelSelectState _ _ _ ui _ _) = return $ pictures $ Prelude.map getUIElemtpic ui
