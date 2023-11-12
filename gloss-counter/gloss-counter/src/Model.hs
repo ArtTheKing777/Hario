@@ -322,4 +322,4 @@ enemyGrounded w e@(Enemy pos@(x,y) s p k) | let
     | otherwise = False
 
 anyNotDead :: (Enemy -> Bool) -> [Enemy] -> Bool
-anyNotDead p e = any p (Prelude.filter (\x -> (estate x /= EDead) && (estate x /= EDie) ) e)
+anyNotDead p e = any p (Prelude.filter (\x -> (estate x /= EDead) && (estate x /= EDie)) e)

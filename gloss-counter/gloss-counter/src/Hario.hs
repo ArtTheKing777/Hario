@@ -13,6 +13,10 @@ enemyCollideCheck :: [Enemy] -> Hario -> Hario
 enemyCollideCheck e h   | anyNotDead (collidesWithEnemy h) e && isFalling h = case findEnemyThatCollideWithHario e h of
                                                                                 Just Hushroom -> getPowerUp Hushroom h
                                                                                 Just HireFlower -> getPowerUp HireFlower h
+                                                                                Just (Hacid _) -> case power h of
+                                                                                                    Small -> Hario (hpos h) Die (power h) (direction h) (velocity h) (onground h) (lives h) (coins h)
+                                                                                                    Big -> Hario (hpos h) (state h) Small (direction h) (velocity h) (onground h) (lives h) (coins h)
+                                                                                                    Fire -> Hario (hpos h) (state h) Big (direction h) (velocity h) (onground h) (lives h) (coins h)
                                                                                 _ ->  jump (h {onground = True})
                         | anyNotDead (collidesWithEnemy h) e && not (isFalling h) = 
                                                             case findEnemyThatCollideWithHario e h of

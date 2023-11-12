@@ -63,7 +63,7 @@ showLevel l@(Level h@(Hario pio@(px,py) _ _ _ _ _ cl coins) e wio c) eT a = do
         showTime = translate (-150) 200 $ scale 0.2 0.2 $ showInfo "Time: " (500-floor eT)
         showScore = translate (-350) 200 $ scale 0.2 0.2 $ showInfo "Coins: " coins
         showEnemies = Prelude.map (animateHenemy eT [a!"henemiesBmp",a!"howserBmp",a!"hammerBmp",a!"fireballBmp"
-         ,a!"acidBmpSplat",a!"acidBmpMove",a!"wormBmpSpit",a!"wormBmpCharge",a!"wormBmpMove",a!"Fireflower",a!"Mushroom"]) e
+         ,a!"acidBmpSplat",a!"acidBmpMove",a!"wormBmpMove",a!"wormBmpCharge",a!"wormBmpSpit",a!"Fireflower",a!"Mushroom"]) e
         fP = tilefP ++ [harioanimation] ++ showEnemies
     return $ pictures[cameraTranspose pio (1,1) w (pictures fP),showLives,showLevel,showTime,showScore]
 

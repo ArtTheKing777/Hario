@@ -49,7 +49,7 @@ getAcidFrames acidframesbmps = scaledacidframes
 getWormFrames :: [BitmapData] -> [Picture]
 getWormFrames wormframesbmps = scaledwormframes
                             where wormframes = makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 0) (fst (bitmapSize (wormframesbmps !! 0))) ++
-                                        [bitmap (wormframesbmps !! 1)] ++ makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 2) (fst (bitmapSize (wormframesbmps !! 1)))
+                                        [bitmap (wormframesbmps !! 1)] ++ makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 2) (fst (bitmapSize (wormframesbmps !! 2)))
                                   scaledwormframes = map (scale 0.45 0.45) wormframes
 
 getHowserFrames :: BitmapData -> [Picture]
@@ -171,7 +171,7 @@ getEnemyFrames e henemyBmp s = case e of
                                                         EAttack -> [Blank]
                                                         EDie -> [acidFrames !! 7, acidFrames !! 8, acidFrames !! 9, acidFrames !!  10, acidFrames !! 11, acidFrames !! 12]
                                                         EDead -> [Blank]
-                                    Worm _ -> case s of
+                                    (Worm _) -> case s of
                                                         EIdle -> [wormFrames !! 4]
                                                         EWalk -> [wormFrames !! 0, wormFrames !! 1, wormFrames !! 2, wormFrames !! 3]
                                                         EAttack -> [wormFrames !! 5, wormFrames !! 6, wormFrames !! 7, wormFrames !! 8, wormFrames !! 9, wormFrames !! 10, wormFrames !! 11]
