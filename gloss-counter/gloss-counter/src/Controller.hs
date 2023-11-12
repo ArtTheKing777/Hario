@@ -28,7 +28,7 @@ pauseUpdate :: Float -> GameState -> IO GameState
 pauseUpdate eT s                 = do 
                                     let k = keys s
                                     if S.member (SpecialKey KeyEsc) k then  return (prevgamestate (s {elapsedTime = eT}))
-                                    else trace "yeah idk"(return (s {elapsedTime = eT}))
+                                    else return (s {elapsedTime = eT})
 
 updateUI :: Float -> GameState -> Map String BitmapData -> IO GameState
 updateUI eT s@(LevelPlayingState {}) dic = return s
