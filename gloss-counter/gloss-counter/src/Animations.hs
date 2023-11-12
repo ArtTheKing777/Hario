@@ -167,14 +167,14 @@ getEnemyFrames e henemyBmp s = case e of
                                                         EDead -> [Blank]
                                     Hacid _ -> case s of
                                                         EIdle -> [Blank]
-                                                        EWalk -> [acidFrames !! 0, acidFrames !! 1, acidFrames !! 2, acidFrames !! 3, acidFrames !! 4, acidFrames !! 5, acidFrames !! 6]
+                                                        EWalk -> [acidFrames !! 0]
                                                         EAttack -> [Blank]
-                                                        EDie -> [acidFrames !! 7, acidFrames !! 8, acidFrames !! 9, acidFrames !!  10, acidFrames !! 11, acidFrames !! 12]
+                                                        EDie -> [acidFrames !! 0]
                                                         EDead -> [Blank]
                                     (Worm _) -> case s of
                                                         EIdle -> [wormFrames !! 4]
                                                         EWalk -> [wormFrames !! 0, wormFrames !! 1, wormFrames !! 2, wormFrames !! 3]
-                                                        EAttack -> [wormFrames !! 5, wormFrames !! 6, wormFrames !! 7, wormFrames !! 8, wormFrames !! 9, wormFrames !! 10, wormFrames !! 11]
+                                                        EAttack ->  [wormFrames !! 0, wormFrames !! 1, wormFrames !! 2, wormFrames !! 3]
                                                         EDie -> [wormFrames !! 4]
                                                         EDead -> [Blank]
                                     HireFlower -> case s of
