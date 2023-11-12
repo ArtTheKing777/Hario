@@ -174,8 +174,6 @@ getEnemySize (Enemy _ HireBall _ _) = (8,8)
 getEnemySize (Enemy _ Hacid _ _) = (8,8)
 getEnemySize (Enemy _ Hammer _ _) = (16,16)
 getEnemySize (Enemy _ Worm _ _) = (16,16)
-genericEnemyUpdate :: Float -> Enemy -> Enemy
-genericEnemyUpdate eT e = e
 
 canEnemyMoveForward :: Enemy -> WorldGrid -> Bool
 canEnemyMoveForward e g = not (willEnemyHitWall e g || willEnemyFall e g)
@@ -213,20 +211,19 @@ pointToField (px,py) w | px<0 || px>=rightBorder = W 0
         downBorder =(-16)*fromIntegral (length w)
         cordToInt cord = floor (cord/16)
 
-enemyUpdate :: Float -> WorldGrid -> Enemy -> Enemy
-enemyUpdate eT g e@(Enemy p HoopaTroopa EDie d)     = Enemy p HoopaShell EIdle d
-enemyUpdate et g e@(Enemy p HoopaParaTroopa EDie d) = Enemy p HoopaShellP EIdle d
-enemyUpdate eT g e@(Enemy p@(x,y) t EDie d)         | y <= (-16)*int2Float(length g) = Enemy (x,y) t EDead d
-                                                    | otherwise = Enemy (fgravity p) t EDie d
-enemyUpdate eT g e@(Enemy (x,y) Hoomba s Left)      | canEnemyMoveForward e g = e {point = (x-0.5, y)}
-                                                    | otherwise = e {edirection = Right} {point = (x, y)}
-enemyUpdate eT g e@(Enemy (x,y) Hoomba s Right)     | canEnemyMoveForward e g = e {point = (x+0.5, y)}
-                                                    | otherwise = e {edirection = Left} {point = (x, y)}
-enemyUpdate eT g e@(Enemy (x,y) HoopaTroopa s Left) | canEnemyMoveForward e g = e {point = (x-0.5, y)}
-                                                    | otherwise = e {edirection = Right} {point = (x, y)}
-enemyUpdate eT g e@(Enemy (x,y) HoopaTroopa s Right)| canEnemyMoveForward e g = e {point = (x+0.5, y)}
-                                                    | otherwise = e {edirection = Left} {point = (x, y)}
-enemyUpdate eT g e                                  = genericEnemyUpdate eT e
+enemyUpdate :: Float -> WorldGrid -> [Enemy] -> [Enemy]
+enemyUpdate _ _ []                                       = []
+enemyUpdate eT g (e@(Enemy p HoopaTroopa EDie d):es)     = Enemy p HoopaShell EIdle d : enemyUpdate eT g es
+enemyUpdate eT g (e@(Enemy p HoopaParaTroopa EDie d):es) = Enemy p HoopaShellP EIdle d : enemyUpdate eT g es
+enemyUpdate eT g (e@(Enemy p@(x,y) t EDie d):es)         | y <= (-16)*int2Float(length g) = Enemy (x,y) t EDead d : enemyUpdate eT g es
+                                                         | otherwise = Enemy (fgravity p) t EDie d : enemyUpdate eT g es
+enemyUpdate eT g (e:es)                                  = genericEnemyUpdate eT g e : enemyUpdate eT g es
+
+genericEnemyUpdate :: Float -> WorldGrid -> Enemy -> Enemy
+genericEnemyUpdate eT g e@(Enemy (x,y) t s Left)  | canEnemyMoveForward e g = e {point = (x-0.5, y)}
+                                                | otherwise = e {edirection = Right} {point = (x, y)}
+genericEnemyUpdate eT g e@(Enemy (x,y) t s Right) | canEnemyMoveForward e g = e {point = (x+0.5, y)}
+                                                | otherwise = e {edirection = Left} {point = (x, y)}
 
 anyNotDead :: (Enemy -> Bool) -> [Enemy] -> Bool
 anyNotDead p e = any p (Prelude.filter (\x -> (estate x /= EDead) && (estate x /= EDie) ) e)

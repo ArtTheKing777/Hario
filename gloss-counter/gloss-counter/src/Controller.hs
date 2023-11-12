@@ -76,7 +76,7 @@ updateLevelState eT (LevelPlayingState k t l a s) = do
                                                         in return (LevelPlayingState (keysupdate k) (eT+t) combine a s)
 
 update' :: Float -> Level -> (Hario -> Hario) -> Level
-update' eT l@(Level p e g) m = Level (updateHario $ enemyCollideCheck e $ tileCollisionCheck g $ setHarioGrounded g $ m p) (map (enemyUpdate eT g . enemyStompedCheck p) e) g
+update' eT l@(Level p e g) m = Level (updateHario $ enemyCollideCheck e $ tileCollisionCheck g $ setHarioGrounded g $ m p) (enemyUpdate eT g $ enemyStompedCheck p e) g
 
 setHarioGrounded::WorldGrid -> Hario -> Hario
 setHarioGrounded w h@(Hario (x,y) s p k l m) = Hario (x,y) s p k l (harioGrounded w h)
