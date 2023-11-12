@@ -28,8 +28,11 @@ initialStartScreenState dic = StartScreenState S.empty 0 (0,0)
 
 initialLevelSelectState:: Map String BitmapData -> [[[Char]]] -> GameState
 initialLevelSelectState dic l = LevelSelectState S.empty 0 (0,0)
-    [levelbutton "2" (0.3,0.3) (0,150) red [dic!"textBoxBmp",dic!"textBoxBmpNo"] (levelUnlucked 2)
-    ,levelbutton "1" (0.3,0.3) (0,-150) red [dic!"textBoxBmp",dic!"textBoxBmpNo"] (levelUnlucked 1)] dic l
+    [levelbutton "2" (0.3,0.3) (0,100) red [dic!"textBoxBmp",dic!"textBoxBmpNo"] (levelUnlucked 2)
+    ,levelbutton "1" (0.3,0.3) (0,175) red [dic!"textBoxBmp",dic!"textBoxBmpNo"] (levelUnlucked 1)
+    ,levelbutton "3" (0.3,0.3) (0,25) red [dic!"textBoxBmp",dic!"textBoxBmpNo"] (levelUnlucked 3)
+    ,levelbutton "4" (0.3,0.3) (0,-50) red [dic!"textBoxBmp",dic!"textBoxBmpNo"] (levelUnlucked 4)
+    ,levelbutton "5" (0.3,0.3) (0,-125) red [dic!"textBoxBmp",dic!"textBoxBmpNo"] (levelUnlucked 5)] dic l
     where levelUnlucked i = cl+1>=i
           cl = read (head l!!2) :: Int
 
@@ -134,7 +137,7 @@ findHarioPos gIO = do
                 [] -> (0,0)
                 (y:ys) -> let xp = checkline 0 y in
                           case xp of
-                          Just x -> (4*16,-1*16)
+                          Just x -> (x*16,-yp*16)
                           Nothing -> checkgrid (yp+1) ys
     checkgrid 0 g
 

@@ -50,6 +50,9 @@ main = do
     level0 <- getSave "harioSave"
     level1 <- getLevel "1"
     level2 <- getLevel "2"
+    level3 <- getLevel "3"
+    level4 <- getLevel "4"
+    level5 <- getLevel "5"
     seed <- newStdGen
 
     -- put it in a dictonary 
@@ -78,7 +81,7 @@ main = do
             ("flagBmp",flagBmp),
             ("hoolitBillTowerBmp",hoolitBillTowerBmp)]
         rSeed = randomR (1::Int,10000::Int) seed :: (Int,StdGen)
-        loadedLevels = [level0,level1,level2,[show $ fst rSeed ]]
+        loadedLevels = [level0,level1,level2,level3,level4,level5,[show $ fst rSeed ]]
 
     playIO (InWindow "Hario" (800,450) (0, 0)) -- Or FullScreen
               (makeColorI 135 206 235 255)          -- Background color

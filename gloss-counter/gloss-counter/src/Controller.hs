@@ -62,6 +62,9 @@ buttonPressedActions b s = case b of
     "start" -> initialLevelSelectState (loadedAnimations s) (loadedLevels s)
     "1" -> initialLevelPlayingState (loadedAnimations s) (loadedLevels s) 1
     "2" -> initialLevelPlayingState (loadedAnimations s) (loadedLevels s) 2
+    "3" -> initialLevelPlayingState (loadedAnimations s) (loadedLevels s) 3
+    "4" -> initialLevelPlayingState (loadedAnimations s) (loadedLevels s) 4
+    "5" -> initialLevelPlayingState (loadedAnimations s) (loadedLevels s) 5
     b -> s
 
 -- | Handle one iteration of the game | eT = elaspsedTme
