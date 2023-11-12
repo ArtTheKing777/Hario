@@ -272,7 +272,7 @@ enemyUpdate eT g h (e@(Enemy p@(x,y) (Hacid _) EWalk d):es)| willEnemyHitWall e 
 enemyUpdate eT g h (e@(Enemy _ Hushroom _ _):es)           = hushroomUpdate eT g e : enemyUpdate eT g h es
 enemyUpdate eT g h (e@(Enemy (x,y) HireFlower s _):es)     = e : enemyUpdate eT g h es
 enemyUpdate eT g h (e:es)                                  = genericEnemyUpdate eT g e : enemyUpdate eT g h es
-
+ 
 genericEnemyUpdate :: Float -> WorldGrid -> Enemy -> Enemy
 genericEnemyUpdate eT g e@(Enemy (x,y) t s Left)    | canEnemyMoveForward e g = e {point = (x-0.5, y)}
                                                     | otherwise = e {edirection = Right} {point = (x, y)}
