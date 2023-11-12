@@ -113,7 +113,7 @@ update' eT l@(Level p e g c) m rn = worldGridUpdate rn $ Level (
     $ checkFor1Up
     $ tileCollisionCheck g
     $ setHarioGrounded g
-    $ m $ player l) (map (enemyGroundedUpdate eT g) (enemyUpdate eT g $ enemyStompedCheck p e)) g c -- fix soon
+    $ m $ player l) (map (enemyGroundedUpdate eT g) (enemyUpdate eT g p $ enemyStompedCheck p e)) g c
 
 worldGridUpdate::  Int -> Level -> Level
 worldGridUpdate rn level@(Level h@(Hario (x,y) s p k (vx,vy) m l co) e g c)= qblockcollide $ blockcollide $ flagcollide $ coincollide level

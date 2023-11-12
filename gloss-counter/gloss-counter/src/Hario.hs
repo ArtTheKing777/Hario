@@ -86,7 +86,8 @@ jump p@(Hario (x,y) s pow dir (vx, vy) g _ _) | not g      = p
                                               | otherwise  = Hario (x,y) Jump pow dir (vx,8.5) False (lives p) (coins p)
 
 isFalling :: Hario -> Bool
-isFalling h | snd (velocity h) < 0 = True
+isFalling h | onground h           = False
+            | snd (velocity h) < 0 = True
             | otherwise            = False
 
 collidesWithEnemy :: Hario -> Enemy -> Bool
@@ -98,6 +99,7 @@ enemyStompedCheck h (e@(Enemy p Hushroom s d):es)   | collidesWithEnemy h e = En
                                                     | otherwise = e : enemyStompedCheck h es
 enemyStompedCheck h (e@(Enemy p HireFlower s d):es) | collidesWithEnemy h e = Enemy p HireFlower EDie d : enemyStompedCheck h es
                                                     | otherwise = e : enemyStompedCheck h es
+enemyStompedCheck h (e@(Enemy p (Hacid _) s d):es)  = e : enemyStompedCheck h es
 enemyStompedCheck h (e@(Enemy p t s d):es)          | collidesWithEnemy h e && isFalling h = Enemy p t EDie d : enemyStompedCheck h es
                                                     | otherwise = e : enemyStompedCheck h es
 
@@ -109,3 +111,6 @@ inbox ((x,y), (w,h)) (xp,yp) = xp >= x && xp <= x+w && yp >= y && yp <= y+h
 
 corners :: (Point, Point) -> [Point]
 corners ((x,y), (w,h)) = [(x,y), (x+w,y), (x,y+h), (x+w,y+h)]
+
+hoopashellUpdate :: Float -> WorldGrid -> Enemy -> Enemy
+hoopashellUpdate eT g e@(Enemy (x,y) (HoopaShell t) s d) = undefined

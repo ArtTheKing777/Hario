@@ -44,13 +44,12 @@ getAcidFrames :: [BitmapData] -> [Picture]
 getAcidFrames acidframesbmps = scaledacidframes
                             where acidframes = makeListofSheet (Rectangle (0,-1) (80, -80)) (acidframesbmps !! 0) (fst (bitmapSize (acidframesbmps !! 0))) ++
                                         makeListofSheet (Rectangle (0, -1) (80, -80)) (acidframesbmps !! 1) (fst (bitmapSize (acidframesbmps !! 1)))
-                                  scaledacidframes = map (scale 0.22 0.22) acidframes  
+                                  scaledacidframes = map (scale 0.45 0.45) acidframes  
                     
 getWormFrames :: [BitmapData] -> [Picture]
 getWormFrames wormframesbmps = scaledwormframes
                             where wormframes = makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 0) (fst (bitmapSize (wormframesbmps !! 0))) ++
-                                        makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 1) (fst (bitmapSize (wormframesbmps !! 1))) ++
-                                        [bitmap (wormframesbmps !! 2)]
+                                        [bitmap (wormframesbmps !! 1)] ++ makeListofSheet (Rectangle (0, -1) (80, -80)) (wormframesbmps !! 2) (fst (bitmapSize (wormframesbmps !! 1)))
                                   scaledwormframes = map (scale 0.45 0.45) wormframes
 
 getHowserFrames :: BitmapData -> [Picture]
@@ -76,7 +75,13 @@ getEnemyFrames e henemyBmp s = case e of
                                                         EAttack -> [henemyframes !! 5, henemyframes !! 6]
                                                         EDie -> [henemyframes !! 8]
                                                         EDead -> [Blank]
-                                    HoopaShell -> case s of
+                                    (HoopaShell _) -> case s of
+                                                        EIdle -> [henemyframes !! 7]
+                                                        EWalk -> [henemyframes !! 7]
+                                                        EAttack -> [henemyframes !! 7]
+                                                        EDie -> [henemyframes !! 7]
+                                                        EDead -> [Blank]
+                                    (HoopaShellP _) -> case s of
                                                         EIdle -> [henemyframes !! 7]
                                                         EWalk -> [henemyframes !! 7]
                                                         EAttack -> [henemyframes !! 7]
@@ -160,13 +165,13 @@ getEnemyFrames e henemyBmp s = case e of
                                                         EAttack -> hireBallFrames
                                                         EDie -> hireBallFrames
                                                         EDead -> [Blank]
-                                    Hacid -> case s of
+                                    Hacid _ -> case s of
                                                         EIdle -> [Blank]
                                                         EWalk -> [acidFrames !! 0, acidFrames !! 1, acidFrames !! 2, acidFrames !! 3, acidFrames !! 4, acidFrames !! 5, acidFrames !! 6]
                                                         EAttack -> [Blank]
                                                         EDie -> [acidFrames !! 7, acidFrames !! 8, acidFrames !! 9, acidFrames !!  10, acidFrames !! 11, acidFrames !! 12]
                                                         EDead -> [Blank]
-                                    Worm -> case s of
+                                    Worm _ -> case s of
                                                         EIdle -> [wormFrames !! 4]
                                                         EWalk -> [wormFrames !! 0, wormFrames !! 1, wormFrames !! 2, wormFrames !! 3]
                                                         EAttack -> [wormFrames !! 5, wormFrames !! 6, wormFrames !! 7, wormFrames !! 8, wormFrames !! 9, wormFrames !! 10, wormFrames !! 11]
