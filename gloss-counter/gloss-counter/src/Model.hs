@@ -14,8 +14,8 @@ import GHC.Float
 
 data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::[UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
               | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::[UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
-              | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float,
-                                    level::Level,loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
+              | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float, level::Level,loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
+              | PauseState {keys::S.Set Key, elapsedTime::Float, lastPic::IO Picture, prevgamestate::GameState}
 
 initialState :: Map String BitmapData -> [[[Char]]] -> GameState
 initialState = initialStartScreenState

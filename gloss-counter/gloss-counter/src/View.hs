@@ -27,6 +27,10 @@ view g@(LevelSelectState k t mp _ _ _)  = loadUI g
 view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _ _ _) _ _ _) a s) = do
                                     let level = l
                                     showLevel level t a
+view g@(PauseState k t p s)         = do
+                                        lastpic <- lastPic g
+                                        let overlay = text "PAUSED"
+                                        return (Pictures [lastpic, overlay])
                                     
                                     
 
