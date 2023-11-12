@@ -24,10 +24,21 @@ harioSpeed = 10
 view :: GameState -> IO Picture
 view g@(StartScreenState k t mp _ _ _)  = loadUI g
 view g@(LevelSelectState k t mp _ _ _)  = loadUI g
-view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _) e _) a s) = showLevel l t a
+view g@(LevelPlayingState k t l@(Level h@(Hario pos _ _ _ _ _ _ _) _ _ _) a s) = do
+                                    let level = l
+                                    showLevel level t a
                                     
+                                    
+
+
 showLevel :: Level -> Float -> Map String BitmapData -> IO Picture
-showLevel l@(Level h@(Hario pio@(px,py) _ _ _ _ _) e wio) eT a = do
+showLevel l@(Level h@(Hario pio@(px,py) Die _ _ _ _ _ _) e wio _) eT a = 
+    return $ pictures[translate (-150) 0 $ scale 0.3 0.3 $ color black $ text "Game Over"
+                     ,translate (-130) (-50) $ scale 0.1 0.1 $ color black $ text "Press space to restart"]
+showLevel l@(Level h@(Hario pio@(px,py) Victory _ _ _ _ _ _) e wio c) eT a = 
+    return $ pictures[translate (-150) 0 $ scale 0.3 0.3 $ color black $ text ("Completed Level:1-"++show c)
+                     ,translate (-130) (-50) $ scale 0.1 0.1 $ color black $ text "Press space to go to level select"]
+showLevel l@(Level h@(Hario pio@(px,py) _ _ _ _ _ cl coins) e wio c) eT a = do
     let check c = case c of
             W i -> Just (W i)
             C   -> Just C
@@ -47,9 +58,17 @@ showLevel l@(Level h@(Hario pio@(px,py) _ _ _ _ _) e wio) eT a = do
         w = wio
         tilefP = checkgrid 0 w [a!"tilesBmp1",a!"coinsBmp",a!"tilesBmp2",a!"flagBmp",a!"pipeBmp"]
         harioanimation = animateHario h eT [a!"smallHarioAnimationSheetBmp",a!"harioAnimationSheetBmp",a!"fireHarioAnimationSheetBmp"]
-        enemiesanimation = Prelude.map (animateHenemy eT [a!"henemiesBmp", a!"howserBmp", a!"hammerBmp", a!"fireballBmp", a!"acidBmpMove", a!"acidBmpSplat", a!"wormBmpMove", a!"wormBmpCharge", a!"wormBmpSpit"]) e
-        fP = tilefP ++ [harioanimation] ++ enemiesanimation
-    return (cameraTranspose pio (1,1) w (pictures fP))
+        showLives = translate 250 200 $ scale 0.2 0.2 $ showInfo "Lives: " cl
+        showLevel = translate 50 200 $ scale 0.2 0.2 $ showInfo "Level:1-" c 
+        showTime = translate (-150) 200 $ scale 0.2 0.2 $ showInfo "Time: " (500-floor eT)
+        showScore = translate (-350) 200 $ scale 0.2 0.2 $ showInfo "Coins: " coins
+        showEnemies = Prelude.map (animateHenemy eT [a!"henemiesBmp",a!"howserBmp",a!"hammerBmp",a!"fireballBmp"
+         ,a!"acidBmpSplat",a!"acidBmpMove",a!"wormBmpSpit",a!"wormBmpCharge",a!"wormBmpMove",a!"Fireflower",a!"Mushroom"]) e
+        fP = tilefP ++ [harioanimation] ++ showEnemies
+    return $ pictures[cameraTranspose pio (1,1) w (pictures fP),showLives,showLevel,showTime,showScore]
+
+showInfo:: String -> Int -> Picture
+showInfo s i = color white $ text(s ++ show i)
 
 showField:: Field -> Float -> [BitmapData] -> Picture
 showField f t [a,b,c,d,e] =
@@ -61,8 +80,8 @@ showField f t [a,b,c,d,e] =
                 I i -> e
             getPicture fii ti = case fii of
                 W i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 190) (getBmpIO fii)
-                Q i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 16) (getBmpIO fii)
-                X i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 48) (getBmpIO fii)
+                Q i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 32) (getBmpIO fii)
+                X i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 64) (getBmpIO fii)
                 I i -> ((!!i). makeListofSheet2 (Rectangle (0,0) (16,-16)) 192) (getBmpIO fii)
                 C   -> (animationLoop ti 0.2 . makeListofSheet2 (Rectangle (0,-1) (16,-16)) 48) (getBmpIO fii)
                 fii -> bitmap (getBmpIO f)
@@ -82,7 +101,8 @@ cameraTranspose (x,y) (zx,zy) g p = translate cx cy (scale zx zy p)
              | otherwise = -y
 
 loadUI:: GameState -> IO Picture
-loadUI (StartScreenState _ _ _ ui _ _) = pictures . Prelude.map getUIElemtpic <$> ui
+loadUI (StartScreenState _ _ _ ui _ _) = return $ pictures $ Prelude.map getUIElemtpic ui
+loadUI (LevelSelectState _ _ _ ui _ _) = return $ pictures $ Prelude.map getUIElemtpic ui
 
 testShow :: Float -> Level -> Map String BitmapData -> IO Picture
 testShow t l a = do

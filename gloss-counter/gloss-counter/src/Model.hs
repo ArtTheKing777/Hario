@@ -12,8 +12,8 @@ import Graphics.Gloss (BitmapData)
 import Control.Monad.State
 import GHC.Float
 
-data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
-              | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::IO [UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
+data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::[UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
+              | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::[UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
               | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float,
                                     level::Level,loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
 
@@ -22,17 +22,20 @@ initialState = initialStartScreenState
 
 
 initialStartScreenState:: Map String BitmapData -> [[[Char]]] -> GameState
-initialStartScreenState = StartScreenState S.empty 0 (0,0)
- (  addUIElement (somethingElse getHarioBmp (0.5,0.5) (0,0)) $
-    addUIElement (button "start" (0.3,0.3) (0,-150) red) (pure []))
+initialStartScreenState dic = StartScreenState S.empty 0 (0,0)
+ [somethingElse (dic!"harioBmp") (0.5,0.5) (0,0),
+ button "start" (0.3,0.3) (0,-150) red (dic!"textBoxBmp")] dic
 
 initialLevelSelectState:: Map String BitmapData -> [[[Char]]] -> GameState
-initialLevelSelectState = StartScreenState S.empty 0 (0,0)
-    (   addUIElement (button "2" (0.3,0.3) (0,150) red) $
-        addUIElement (button "1" (0.3,0.3) (0,-150) red) (pure []))
+initialLevelSelectState dic l = LevelSelectState S.empty 0 (0,0)
+    [levelbutton "2" (0.3,0.3) (0,150) red [dic!"textBoxBmp",dic!"textBoxBmpNo"] (levelUnlucked 2)
+    ,levelbutton "1" (0.3,0.3) (0,-150) red [dic!"textBoxBmp",dic!"textBoxBmpNo"] (levelUnlucked 1)] dic l
+    where levelUnlucked i = cl+1>=i
+          cl = read (head l!!2) :: Int
+
 
 initialLevelPlayingState:: Map String BitmapData -> [[[Char]]] -> Int -> GameState
-initialLevelPlayingState m l i = LevelPlayingState S.empty 0 (createLevel (l!!(i-1))) m l
+initialLevelPlayingState m l i = LevelPlayingState S.empty 0 (createLevel i l) m l
 
     --LevelPlayingState S.empty 0 (Level (Hario(0, 0) Walk Small Left 10) [] [[]])
 --initialState = LevelPlayingState S.empty 0 (Level (Hario(0, 0) Idle Small Left (0,0) True) [] [[]])
@@ -44,15 +47,17 @@ data Looking = Left | Right
     deriving (Eq)
 
 data PlayerPower = Small | Big | Fire
-    deriving (Eq)
+    deriving(Eq,Show)
 
 {-data Hario = Hario { hpos::IO Point, state::PlayerState,
                      power::PlayerPower, direction::Looking, speed::Float} -}
 
 data Hario = Hario { hpos::Point, state::PlayerState,
-                     power::PlayerPower, direction::Looking, velocity::Vector, onground::Bool}
+                     power::PlayerPower, direction::Looking, velocity::Vector, onground::Bool,lives::Int,coins::Int}
 data EnemyType = Hoomba | HoopaTroopa | HoopaParaTroopa | Hirrana | RedHirrana | HeepHeep | Hloober | Hakitu | Hiny | HuzzyBeetle | HoolitBill
                         | HammerBrother | Worm | Howser | HoopaShell | HoopaShellP | HireBall | Hacid | Hammer  | HakituProjectile
+                        | Hushroom | HireFlower deriving(Eq,Show)
+
 
 data EnemyState = EIdle | EWalk | EAttack | EDie | EDead
     deriving (Eq)
@@ -69,23 +74,53 @@ data Field = W Int -- Wall
             |P -- platform
             |I Int -- pipe
             |E EnemyType
+            deriving(Eq,Show)
+
+
 type Row = [Field]
 type WorldGrid = [Row]
-data Level = Level{player::Hario, enemies::[Enemy], grid::WorldGrid}
-
-addUIElement ::  IO UIElement -> IO [UIElement] -> IO [UIElement]
-addUIElement e l = do
-                    uie <- e
-                    uies <- l
-                    return (uies ++ [uie])
+data Level = Level{player::Hario, enemies::[Enemy], grid::WorldGrid, currentLevel::Int}
 
 
-createLevel::[[Char]] -> Level
-createLevel s = do
-                    let grid = createGrid s
+createLevel::Int -> [[[Char]]] -> Level
+createLevel i s = do
+                    let g = s!!i
+                        grid = createGrid g
                         harioPos = findHarioPos grid
                         enemyPos = findEnemyPos grid
-                    Level (Hario harioPos Idle Small Right (0,0) False) enemyPos grid
+                    Level (loadHario (head s) harioPos) enemyPos grid i
+
+reCreateLevel::Int -> [[[Char]]] -> Hario -> Level
+reCreateLevel i s h@(Hario (x,y) Idle p o v m l c) = do
+                    let g = s!!i
+                        grid = createGrid g
+                        harioPos = findHarioPos grid
+                        enemyPos = findEnemyPos grid
+                    Level (Hario harioPos Idle Small Right (0,0) False l c) enemyPos grid i
+
+loadHario::[[Char]] -> Point -> Hario
+loadHario c p = Hario p Idle (harioType $ c!!1) Right (0,0) False lives coins
+    where lives = read (head c) :: Int
+          harioType t = case t of
+            "Small" -> Small
+            "Big" -> Big
+            _ -> Fire
+          coins = read (c!!3) :: Int
+
+createHarioSave:: Hario -> Int -> [[Char]] -> [[Char]]
+createHarioSave h i b = [l,harioType,lev,c]
+    where l = show $ lives h
+          harioType = case power h of
+             Small -> "Small"
+             Big -> "Big"
+             _ -> "Fire"
+          c =  show $ coins h
+          clev =  read (b!!2) :: Int
+          lev | clev<i = show i
+              | otherwise = show clev
+
+createEmptyHarioSave:: [[Char]]
+createEmptyHarioSave = ["5","Small","0","0"]
 
 findHarioPos:: [[Field]] -> Point
 findHarioPos gIO = do
@@ -126,17 +161,25 @@ createGrid::[[Char]] -> WorldGrid
 createGrid cg = do
     let char c = case c of
             '#' -> W 4
+            '*' -> W 1
+            '-' -> W 8
             '.' -> A
             '1' -> H
             'G' -> C
             'H' -> Q 0
-            'X' -> X 1
+            '0' -> Q 1
+            'X' -> X 2
+            ',' -> X 0
+            '|' -> X 1
+            '/' -> X 3
             'I' -> I 4
             'i' -> I 5
             'B' -> I 10
             'b' -> I 11
             'M' -> E Hoomba
             'W' -> E Worm
+            'F' -> E HireFlower
+            'R' -> E Hushroom
             c   -> A --if it doesn't know just air
         charline cl = case cl of
             [] -> []
@@ -174,6 +217,10 @@ getEnemySize (Enemy _ HireBall _ _) = (8,8)
 getEnemySize (Enemy _ Hacid _ _) = (8,8)
 getEnemySize (Enemy _ Hammer _ _) = (16,16)
 getEnemySize (Enemy _ Worm _ _) = (16,16)
+getEnemySize (Enemy _ HireFlower _ _) = (16,16)
+getEnemySize (Enemy _ Hushroom _ _) = (16,16)
+genericEnemyUpdate :: Float -> Enemy -> Enemy
+genericEnemyUpdate eT e = e
 
 canEnemyMoveForward :: Enemy -> WorldGrid -> Bool
 canEnemyMoveForward e g = not (willEnemyHitWall e g || willEnemyFall e g)
@@ -211,12 +258,20 @@ pointToField (px,py) w | px<0 || px>=rightBorder = W 0
         downBorder =(-16)*fromIntegral (length w)
         cordToInt cord = floor (cord/16)
 
+
 enemyUpdate :: Float -> WorldGrid -> [Enemy] -> [Enemy]
 enemyUpdate _ _ []                                       = []
 enemyUpdate eT g (e@(Enemy p HoopaTroopa EDie d):es)     = Enemy p HoopaShell EIdle d : enemyUpdate eT g es
 enemyUpdate eT g (e@(Enemy p HoopaParaTroopa EDie d):es) = Enemy p HoopaShellP EIdle d : enemyUpdate eT g es
 enemyUpdate eT g (e@(Enemy p@(x,y) t EDie d):es)         | y <= (-16)*int2Float(length g) = Enemy (x,y) t EDead d : enemyUpdate eT g es
                                                          | otherwise = Enemy (fgravity p) t EDie d : enemyUpdate eT g es
+enemyUpdate eT g e@(Enemy (x,y) Hushroom s Left)         | not (willEnemyHitWall e g) && enemyGrounded g e  = e {point = (x-0.5, y)}
+                                                         | not $ enemyGrounded g e = e {point = (x-0.5, y)}
+                                                         | otherwise = e {edirection = Right} {point = (x, y)}
+enemyUpdate eT g e@(Enemy (x,y) Hushroom s Right)        | not (willEnemyHitWall e g) && enemyGrounded g e  = e {point = (x+0.5, y)}
+                                                         | not $ enemyGrounded g e = e {point = (x+0.5, y)}
+                                                         | otherwise = e {edirection = Left} {point = (x, y)}
+enemyUpdate eT g e@(Enemy (x,y) HireFlower s _)          = e
 enemyUpdate eT g (e:es)                                  = genericEnemyUpdate eT g e : enemyUpdate eT g es
 
 genericEnemyUpdate :: Float -> WorldGrid -> Enemy -> Enemy
@@ -224,6 +279,34 @@ genericEnemyUpdate eT g e@(Enemy (x,y) t s Left)  | canEnemyMoveForward e g = e 
                                                 | otherwise = e {edirection = Right} {point = (x, y)}
 genericEnemyUpdate eT g e@(Enemy (x,y) t s Right) | canEnemyMoveForward e g = e {point = (x+0.5, y)}
                                                 | otherwise = e {edirection = Left} {point = (x, y)}
+
+
+
+enemyGroundedUpdate :: Float -> WorldGrid -> Enemy -> Enemy
+enemyGroundedUpdate et g e | enemyGrounded g e &&  estate e /= EDie  = e
+                           | otherwise = e{point = gravity(gravity (point e))}
+
+enemyGrounded::WorldGrid -> Enemy -> Bool
+enemyGrounded w e@(Enemy pos@(x,y) s p k) | let
+    rightBorder = 16*fromIntegral (length (head w))
+    downBorder  = -16*fromIntegral (length w)
+    cordToInt cord = floor (cord/16)
+    pointtofield (px,py) | px<0 || px>rightBorder || py<downBorder = W 0
+                         | py>0 = A
+                         | otherwise = (w!!cordToInt (-py))!!cordToInt px
+    fieldSolid f = case f of
+            A -> False
+            C -> False
+            X i -> False
+            H -> False
+            E _ -> False
+            _ -> True
+    size = getEnemySize e
+    offx = fst size / 2
+    offy = snd size / 2
+    pointToCheck (px,py) = [(px,py-offy-8),(px-offx,py-offy-8),(px+offx,py-offy-8)]
+    in any (fieldSolid . flip pointToField w) (pointToCheck (x,y)) = True
+    | otherwise = False
 
 anyNotDead :: (Enemy -> Bool) -> [Enemy] -> Bool
 anyNotDead p e = any p (Prelude.filter (\x -> (estate x /= EDead) && (estate x /= EDie) ) e)

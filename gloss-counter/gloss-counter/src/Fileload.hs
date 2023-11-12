@@ -1,6 +1,7 @@
 module Fileload where
 import Graphics.Gloss.Data.Bitmap (BitmapData(bitmapSize), Rectangle (Rectangle), loadBMP)
 import Graphics.Gloss.Data.Picture (Picture (Bitmap, BitmapSection, Blank) , pictures, scale, translate, bitmapSection, bitmap)
+import Control.Monad
  -- Load from filepath as BitmapData
 loadBitmapData :: FilePath -> IO BitmapData
 loadBitmapData s = do
@@ -34,8 +35,17 @@ getSmallHarioAnimationSheetBmp = loadBitmapData "media/hario/smallhario.bmp"
 getTextBoxBmp :: IO BitmapData
 getTextBoxBmp = loadBitmapData "media/textBox.bmp"
 
+getTextBoxBmpNo :: IO BitmapData
+getTextBoxBmpNo = loadBitmapData "media/textBoxNo.bmp"
+
 getHenemiesBmp :: IO BitmapData
 getHenemiesBmp = loadBitmapData "media/enemies/henemies.bmp"
+
+getFireFlowerBmp :: IO BitmapData
+getFireFlowerBmp = loadBitmapData "media/powers/fireFlower.bmp"
+
+getMushRoomBmp :: IO BitmapData
+getMushRoomBmp = loadBitmapData "media/powers/mushroom.bmp"
 
 getHowserBmp :: IO BitmapData
 getHowserBmp = loadBitmapData "media/enemies/howser.bmp"
@@ -86,4 +96,15 @@ getLevel :: String -> IO [[Char]]
 getLevel s = do
     l <- readFile ("media/levels/level"++s++".txt")
     return (lines l)
+
+getSave :: String -> IO [[Char]]
+getSave s = do
+    l <- readFile ("media/"++s++".txt")
+    return (lines l)
+
+saveHario:: [[Char]] -> IO()
+saveHario h = do
+    let newContents = unlines h
+    when (length newContents > 0) $
+        writeFile "media/harioSaveTmp.txt" (unlines h)
             

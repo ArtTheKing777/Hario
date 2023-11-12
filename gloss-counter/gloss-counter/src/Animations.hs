@@ -34,6 +34,12 @@ getHammerFrames hammersheetbmp = makeListofSheet (Rectangle (0, -1) (22, -17)) h
 getHireBallFrames :: BitmapData -> [Picture]
 getHireBallFrames hireballsheetbmp = makeListofSheet (Rectangle (0, -1) (8, -8)) hireballsheetbmp (fst (bitmapSize hireballsheetbmp))
 
+getHireFlowerFrames :: BitmapData -> [Picture]
+getHireFlowerFrames hireballsheetbmp = makeListofSheet (Rectangle (0, -1) (16, -32)) hireballsheetbmp (fst (bitmapSize hireballsheetbmp))
+
+getMushroomFrames :: BitmapData -> [Picture]
+getMushroomFrames hireballsheetbmp = makeListofSheet (Rectangle (0, -1) (16, -32)) hireballsheetbmp (fst (bitmapSize hireballsheetbmp))
+
 getAcidFrames :: [BitmapData] -> [Picture]
 getAcidFrames acidframesbmps = scaledacidframes
                             where acidframes = makeListofSheet (Rectangle (0,-1) (80, -80)) (acidframesbmps !! 0) (fst (bitmapSize (acidframesbmps !! 0))) ++
@@ -166,12 +172,22 @@ getEnemyFrames e henemyBmp s = case e of
                                                         EAttack -> [wormFrames !! 5, wormFrames !! 6, wormFrames !! 7, wormFrames !! 8, wormFrames !! 9, wormFrames !! 10, wormFrames !! 11]
                                                         EDie -> [wormFrames !! 4]
                                                         EDead -> [Blank]
+                                    HireFlower -> case s of
+                                                        EIdle -> [fireflowerFrames !! 0]
+                                                        EWalk -> [fireflowerFrames !! 0,fireflowerFrames !! 1,fireflowerFrames !! 2,fireflowerFrames !! 3]
+                                                        _ -> [Blank]
+                                    Hushroom -> case s of
+                                                        EIdle -> [mushroomFrames !! 0]
+                                                        EWalk -> [mushroomFrames !! 0,mushroomFrames !! 1]
+                                                        _ -> [Blank]
                                 where   henemyframes = getHenemyFrames (henemyBmp !! 0) 
                                         howserFrames = getHowserFrames (henemyBmp !! 1)
                                         hammerFrames = getHammerFrames (henemyBmp !! 2)
                                         hireBallFrames = getHireBallFrames (henemyBmp !! 3)
                                         acidFrames = getAcidFrames [henemyBmp !! 4, henemyBmp !! 5]
                                         wormFrames = getWormFrames [henemyBmp !! 6, henemyBmp !! 7, henemyBmp !! 8]
+                                        fireflowerFrames = getHireFlowerFrames (henemyBmp !! 9) 
+                                        mushroomFrames = getMushroomFrames (henemyBmp !! 10) 
 
 animateHenemy :: Float -> [BitmapData] -> Enemy ->  Picture
 animateHenemy eT bmps e@(Enemy (x,y) t s l) = do
@@ -287,7 +303,7 @@ harioFallAnimation p eT s b = do
 
 
 animateHario :: Hario -> Float -> [BitmapData] -> Picture
-animateHario p@(Hario (x,y) _ _ _ _ _) t b = case state p of
+animateHario p@(Hario (x,y) _ _ _ _ _ _ _) t b = case state p of
                         Idle -> do
                                     let animation = harioIdleAnimation (power p) t (fst (velocity p)*10) b
                                     if direction p == Left then translate x y (scale (-1) 1 animation)
