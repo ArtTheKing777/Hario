@@ -1,4 +1,4 @@
-
+{-# LANGUAGE TemplateHaskell #-}
 
 module Controller where
 
@@ -49,11 +49,11 @@ updateUI eT s dic = do
 
 whichButtonPressed:: [UIElement] -> (Float,Float) -> Maybe UIElement
 whichButtonPressed [] mp = Nothing
-whichButtonPressed (x@(Button t s b p pic) :xs) mp | hoveredButton mp x = Just x
-                                                   | otherwise = whichButtonPressed xs mp
-whichButtonPressed (x@(LevelButton t s b p pic1 pic2 bool) :xs) mp | hoveredButton mp x && bool = Just x
-                                                                   | otherwise = whichButtonPressed xs mp
-whichButtonPressed (x:xs) mp = whichButtonPressed xs mp
+whichButtonPressed (x@(Button t s b p pic) :xs) mp                  | hoveredButton mp x = Just x
+                                                                    | otherwise = whichButtonPressed xs mp
+whichButtonPressed (x@(LevelButton t s b p pic1 pic2 bool) :xs) mp  | hoveredButton mp x && bool = Just x
+                                                                    | otherwise = whichButtonPressed xs mp
+whichButtonPressed (x:xs) mp                                        = whichButtonPressed xs mp
 
 
 
@@ -64,7 +64,12 @@ buttonPressedActions b s = case b of
     "2" -> initialLevelPlayingState (loadedAnimations s) (loadedLevels s) 2
     b -> s
 
-updateLevelState :: Float -> GameState -> IO GameState
+-- | Handle one iteration of the game | eT = elaspsedTme
+step :: Float -> GameState -> IO GameState
+step eT (LevelSelectState k t p l a s) = return (LevelSelectState k (t + eT) p l a s)
+step eT (StartScreenState k t mp l a s) = return (StartScreenState k (t + eT) mp l a s)
+step eT p@(LevelPlayingState k t l a s) = updateLevelState eT p
+
 updateLevelState eT g@(LevelPlayingState k t z@(Level (Hario (x,y) Die p o v m l co) e w c) a n)
     | l > 0 = return $ LevelPlayingState k 0 (reCreateLevel c n (Hario (x,y) Idle p o v m (l-1) co)) a n
     | otherwise = if S.member (SpecialKey KeySpace) k
@@ -108,7 +113,7 @@ update' eT l@(Level p e g c) m rn = worldGridUpdate rn $ Level (
     $ checkFor1Up
     $ tileCollisionCheck g
     $ setHarioGrounded g
-    $ m $ player l) (map (enemyGroundedUpdate eT g . enemyUpdate eT g . enemyStompedCheck p) e) g c
+    $ m $ player l) (map (enemyGroundedUpdate eT g) (enemyUpdate eT g $ enemyStompedCheck p e)) g c -- fix soon
 
 worldGridUpdate::  Int -> Level -> Level
 worldGridUpdate rn level@(Level h@(Hario (x,y) s p k (vx,vy) m l co) e g c)= qblockcollide $ blockcollide $ flagcollide $ coincollide level
@@ -158,9 +163,6 @@ setFieldInWorldGrid f g (x,y) = setElem gy g (rowset (g!!gy))
 setElem::Int -> [a] -> a -> [a]
 setElem n xs newElement = take n xs ++ [newElement] ++ drop (n + 1) xs
 
-update' :: Float -> Level -> (Hario -> Hario) -> Level
-update' eT l@(Level p e g) m = Level (updateHario $ enemyCollideCheck e $ tileCollisionCheck g $ setHarioGrounded g $ m p) (enemyUpdate eT g $ enemyStompedCheck p e) g
-
 setHarioGrounded::WorldGrid -> Hario -> Hario
 setHarioGrounded w h@(Hario (x,y) s p k v m l co) = Hario (x,y) s p k v (harioGrounded w h) l co
 
@@ -208,8 +210,6 @@ harioGrounded w h@(Hario (x,y) s p k l m _ _) | let
         _ -> [(px,py-18),(px-7.5,py-18),(px+7.5,py-18)]
     in any (fieldSolid . Controller.pointToField w) (pointToCheck (x,y) p) = True
     | otherwise = False
-
-
 
 tileCollisionCheck:: WorldGrid -> Hario -> Hario
 tileCollisionCheck w h@(Hario pos s p d (0,0) g l co) = h

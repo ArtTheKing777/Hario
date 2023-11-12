@@ -93,17 +93,13 @@ collidesWithEnemy :: Hario -> Enemy -> Bool
 collidesWithEnemy h@(Hario (hx,hy) _ _ _ _ _ _ _) e@(Enemy(ex,ey) _ _ _) = intersects ((ex-(fst(getEnemySize e)/2),ey+(snd(getEnemySize e)/2)),getEnemySize e) ((hx-(fst(getHarioSize h)/2),hy+(snd(getHarioSize h)/2)), getHarioSize h)
 
 enemyStompedCheck :: Hario -> [Enemy] -> [Enemy]
-enemyStompedCheck _ []                      = []
-enemyStompedCheck h (e@(Enemy p t s d):es)  | collidesWithEnemy h e && isFalling h = Enemy p t EDie d : enemyStompedCheck h es
-                                            | otherwise = e : enemyStompedCheck h es
-enemyStompedCheck h e@(Enemy p Hushroom s d) 
-                                      | collidesWithEnemy h e = Enemy p Hushroom EDie d
-                                      | otherwise = e
-enemyStompedCheck h e@(Enemy p HireFlower s d) 
-                                      | collidesWithEnemy h e = Enemy p HireFlower EDie d
-                                      | otherwise = e
-enemyStompedCheck h e@(Enemy p t s d) | collidesWithEnemy h e && isFalling h = Enemy p t EDie d
-                                      | otherwise = e
+enemyStompedCheck _ []                              = []
+enemyStompedCheck h (e@(Enemy p Hushroom s d):es)   | collidesWithEnemy h e = Enemy p Hushroom EDie d : enemyStompedCheck h es
+                                                    | otherwise = e : enemyStompedCheck h es
+enemyStompedCheck h (e@(Enemy p HireFlower s d):es) | collidesWithEnemy h e = Enemy p HireFlower EDie d : enemyStompedCheck h es
+                                                    | otherwise = e : enemyStompedCheck h es
+enemyStompedCheck h (e@(Enemy p t s d):es)          | collidesWithEnemy h e && isFalling h = Enemy p t EDie d : enemyStompedCheck h es
+                                                    | otherwise = e : enemyStompedCheck h es
 
 intersects :: (Point, Point) -> (Point, Point) -> Bool
 intersects r1 r2 = any (inbox r1) (corners r2) || any (inbox r2) (corners r1)

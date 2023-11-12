@@ -33,9 +33,15 @@ initialLevelSelectState dic l = LevelSelectState S.empty 0 (0,0)
     where levelUnlucked i = cl+1>=i
           cl = read (head l!!2) :: Int
 
-
 initialLevelPlayingState:: Map String BitmapData -> [[[Char]]] -> Int -> GameState
 initialLevelPlayingState m l i = LevelPlayingState S.empty 0 (createLevel i l) m l
+
+
+addUIElement ::  IO UIElement -> IO [UIElement] -> IO [UIElement]
+addUIElement e l = do
+                    uie <- e
+                    uies <- l
+                    return (uies ++ [uie])
 
     --LevelPlayingState S.empty 0 (Level (Hario(0, 0) Walk Small Left 10) [] [[]])
 --initialState = LevelPlayingState S.empty 0 (Level (Hario(0, 0) Idle Small Left (0,0) True) [] [[]])
@@ -47,7 +53,7 @@ data Looking = Left | Right
     deriving (Eq)
 
 data PlayerPower = Small | Big | Fire
-    deriving(Eq,Show)
+    deriving (Eq, Show)
 
 {-data Hario = Hario { hpos::IO Point, state::PlayerState,
                      power::PlayerPower, direction::Looking, speed::Float} -}
@@ -57,7 +63,6 @@ data Hario = Hario { hpos::Point, state::PlayerState,
 data EnemyType = Hoomba | HoopaTroopa | HoopaParaTroopa | Hirrana | RedHirrana | HeepHeep | Hloober | Hakitu | Hiny | HuzzyBeetle | HoolitBill
                         | HammerBrother | Worm | Howser | HoopaShell | HoopaShellP | HireBall | Hacid | Hammer  | HakituProjectile
                         | Hushroom | HireFlower deriving(Eq,Show)
-
 
 data EnemyState = EIdle | EWalk | EAttack | EDie | EDead
     deriving (Eq)
@@ -76,11 +81,9 @@ data Field = W Int -- Wall
             |E EnemyType
             deriving(Eq,Show)
 
-
 type Row = [Field]
 type WorldGrid = [Row]
 data Level = Level{player::Hario, enemies::[Enemy], grid::WorldGrid, currentLevel::Int}
-
 
 createLevel::Int -> [[[Char]]] -> Level
 createLevel i s = do
@@ -219,8 +222,6 @@ getEnemySize (Enemy _ Hammer _ _) = (16,16)
 getEnemySize (Enemy _ Worm _ _) = (16,16)
 getEnemySize (Enemy _ HireFlower _ _) = (16,16)
 getEnemySize (Enemy _ Hushroom _ _) = (16,16)
-genericEnemyUpdate :: Float -> Enemy -> Enemy
-genericEnemyUpdate eT e = e
 
 canEnemyMoveForward :: Enemy -> WorldGrid -> Bool
 canEnemyMoveForward e g = not (willEnemyHitWall e g || willEnemyFall e g)
@@ -258,20 +259,19 @@ pointToField (px,py) w | px<0 || px>=rightBorder = W 0
         downBorder =(-16)*fromIntegral (length w)
         cordToInt cord = floor (cord/16)
 
-
 enemyUpdate :: Float -> WorldGrid -> [Enemy] -> [Enemy]
 enemyUpdate _ _ []                                       = []
 enemyUpdate eT g (e@(Enemy p HoopaTroopa EDie d):es)     = Enemy p HoopaShell EIdle d : enemyUpdate eT g es
 enemyUpdate eT g (e@(Enemy p HoopaParaTroopa EDie d):es) = Enemy p HoopaShellP EIdle d : enemyUpdate eT g es
 enemyUpdate eT g (e@(Enemy p@(x,y) t EDie d):es)         | y <= (-16)*int2Float(length g) = Enemy (x,y) t EDead d : enemyUpdate eT g es
                                                          | otherwise = Enemy (fgravity p) t EDie d : enemyUpdate eT g es
-enemyUpdate eT g e@(Enemy (x,y) Hushroom s Left)         | not (willEnemyHitWall e g) && enemyGrounded g e  = e {point = (x-0.5, y)}
-                                                         | not $ enemyGrounded g e = e {point = (x-0.5, y)}
-                                                         | otherwise = e {edirection = Right} {point = (x, y)}
-enemyUpdate eT g e@(Enemy (x,y) Hushroom s Right)        | not (willEnemyHitWall e g) && enemyGrounded g e  = e {point = (x+0.5, y)}
-                                                         | not $ enemyGrounded g e = e {point = (x+0.5, y)}
-                                                         | otherwise = e {edirection = Left} {point = (x, y)}
-enemyUpdate eT g e@(Enemy (x,y) HireFlower s _)          = e
+enemyUpdate eT g (e@(Enemy (x,y) Hushroom s Left):es)    | not (willEnemyHitWall e g) && enemyGrounded g e  = e {point = (x-0.5, y)} : enemyUpdate eT g es
+                                                         | not $ enemyGrounded g e = e {point = (x-0.5, y)} : enemyUpdate eT g es
+                                                         | otherwise = e {edirection = Right} {point = (x, y)} : enemyUpdate eT g es
+enemyUpdate eT g (e@(Enemy (x,y) Hushroom s Right):es)   | not (willEnemyHitWall e g) && enemyGrounded g e  = e {point = (x+0.5, y)} : enemyUpdate eT g es
+                                                         | not $ enemyGrounded g e = e {point = (x+0.5, y)} : enemyUpdate eT g es
+                                                         | otherwise = e {edirection = Left} {point = (x, y)} : enemyUpdate eT g es
+enemyUpdate eT g (e@(Enemy (x,y) HireFlower s _):es)     = e : enemyUpdate eT g es
 enemyUpdate eT g (e:es)                                  = genericEnemyUpdate eT g e : enemyUpdate eT g es
 
 genericEnemyUpdate :: Float -> WorldGrid -> Enemy -> Enemy
@@ -279,8 +279,6 @@ genericEnemyUpdate eT g e@(Enemy (x,y) t s Left)  | canEnemyMoveForward e g = e 
                                                 | otherwise = e {edirection = Right} {point = (x, y)}
 genericEnemyUpdate eT g e@(Enemy (x,y) t s Right) | canEnemyMoveForward e g = e {point = (x+0.5, y)}
                                                 | otherwise = e {edirection = Left} {point = (x, y)}
-
-
 
 enemyGroundedUpdate :: Float -> WorldGrid -> Enemy -> Enemy
 enemyGroundedUpdate et g e | enemyGrounded g e &&  estate e /= EDie  = e
