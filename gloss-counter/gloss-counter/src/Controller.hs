@@ -14,15 +14,25 @@ import Hario
 import Data.List (elemIndex)
 import Fileload (saveHario)
 import Data.Map (Map, (!))
+import View (view)
+import Debug.Trace (trace)
 
 -- | Handle one iteration of the game | eT = elaspsedTme
 update_ :: Float -> GameState -> IO GameState
 update_ eT s@(LevelSelectState k t mp ui a l) = updateUI (t + eT) s a
 update_ eT s@(StartScreenState k t mp ui a l) = updateUI (t + eT) s a
 update_ eT s@(LevelPlayingState k t h a l) = updateLevelState eT s
+update_ eT s@(PauseState k t p g) = pauseUpdate (t + eT) s
+
+pauseUpdate :: Float -> GameState -> IO GameState
+pauseUpdate eT s                 = do 
+                                    let k = keys s
+                                    if S.member (SpecialKey KeyEsc) k then  return (prevgamestate (s {elapsedTime = eT}))
+                                    else return (s {elapsedTime = eT})
 
 updateUI :: Float -> GameState -> Map String BitmapData -> IO GameState
 updateUI eT s@(LevelPlayingState {}) dic = return s
+updateUI eT s@(PauseState {}) dic = return s
 updateUI eT s dic = do
         let uic = ui s
             mp = mousePos s
@@ -72,7 +82,9 @@ step :: Float -> GameState -> IO GameState
 step eT (LevelSelectState k t p l a s) = return (LevelSelectState k (t + eT) p l a s)
 step eT (StartScreenState k t mp l a s) = return (StartScreenState k (t + eT) mp l a s)
 step eT p@(LevelPlayingState k t l a s) = updateLevelState eT p
+step eT p@(PauseState k t i s) = pauseUpdate (eT + t) p
 
+updateLevelState :: Float -> GameState -> IO GameState
 updateLevelState eT g@(LevelPlayingState k t z@(Level (Hario (x,y) Die p o v m l co) e w c) a n)
     | l > 0 = return $ LevelPlayingState k 0 (reCreateLevel c n (Hario (x,y) Idle p o v m (l-1) co)) a n
     | otherwise = if S.member (SpecialKey KeySpace) k
@@ -88,7 +100,10 @@ updateLevelState eT g@(LevelPlayingState k t z@(Level h@(Hario (x,y) Victory p o
         save <- saveHario ch
         return (initialLevelSelectState a (ch : tail n))
     else return g
-updateLevelState eT (LevelPlayingState k t l a s) = let
+updateLevelState eT st@(LevelPlayingState k t l a s) = do
+                                                if S.member (SpecialKey KeyEsc) k then return (PauseState k (eT+t) (view st) st) 
+                                                else
+                                                    let
                                                         mover i = if S.member (Char 'd') k
                                                                 then moveRight . i
                                                                 else i

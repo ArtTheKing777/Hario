@@ -14,8 +14,8 @@ import GHC.Float
 
 data GameState = LevelSelectState { keys::S.Set Key,  elapsedTime::Float,mousePos::(Float,Float),ui::[UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
               | StartScreenState  { keys::S.Set Key ,  elapsedTime::Float,mousePos::(Float,Float),ui::[UIElement],loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
-              | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float,
-                                    level::Level,loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
+              | LevelPlayingState { keys::S.Set Key,  elapsedTime::Float, level::Level,loadedAnimations::Map String BitmapData,loadedLevels::[[[Char]]]}
+              | PauseState {keys::S.Set Key, elapsedTime::Float, lastPic::IO Picture, prevgamestate::GameState}
 
 initialState :: Map String BitmapData -> [[[Char]]] -> GameState
 initialState = initialStartScreenState
@@ -281,6 +281,11 @@ genericEnemyUpdate eT g e@(Enemy (x,y) t s Left)    | canEnemyMoveForward e g = 
                                                     | otherwise = e {edirection = Right} {point = (x, y)}
 genericEnemyUpdate eT g e@(Enemy (x,y) t s Right)   | canEnemyMoveForward e g = e {point = (x+0.5, y)}
                                                     | otherwise = e {edirection = Left} {point = (x, y)}
+
+hoolitBillUpdate :: Float -> WorldGrid -> Enemy -> Enemy
+hoolitBillUpdate eT g e@(Enemy p@(x,y) t EWalk d)   | willEnemyHitWall e g = Enemy p t EDie d
+                                                    | d == Left = e {point = (x-1, y)}
+                                                    | d == Right = e {point = (x+1, y)}
 
 hushroomUpdate :: Float -> WorldGrid -> Enemy -> Enemy
 hushroomUpdate eT g e@(Enemy (x,y) Hushroom s Left) | not (willEnemyHitWall e g) && enemyGrounded g e  = e {point = (x-0.5, y)}
